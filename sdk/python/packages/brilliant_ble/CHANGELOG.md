@@ -1,0 +1,113 @@
+## 3.5.1
+
+* macOS: a write without response that waits more than `write_without_response_timeout` (new, default 0.1 s; the longest normal wait seen was 12 ms) for CoreBluetooth to have room is sent with response instead, and later writes go with response without waiting for as long as CoreBluetooth still reports no room. macOS can stop reporting `canSendWriteWithoutResponse` for good partway through a long stream, with no `peripheralIsReadyToSendWriteWithoutResponse` callback, while writes with response still succeed in about 30 ms. Long `send_message()` and `send_audio()` streams previously failed with "device didn't respond" after 5 s; they now continue, more slowly. Other platforms are unchanged
+
+## 3.5.0
+
+* On Halo, `send_message()` streams its packets as writes without response instead of waiting for the device's data acknowledgement after each one. It keeps at most `receive_buffer_size // (packet size + 2)` packets unacknowledged, which is what fits in Halo's receive buffer, so a slow Lua handler cannot make it lose data (tested with a handler taking 50 ms per packet). A 128x128 4bpp `TxImageSpriteBlock` went from about 1.5 s to 0.3 s at the 30 ms connection interval macOS and iOS pick by default, and to about 0.17 s at 15 ms. Frame is unchanged
+* `send_message()` on Halo can now return before the device has handled its last packets. The new `wait_for_acks()` waits for them. `send_lua()` and `send_data()` wait for them first, and a failure acknowledgement from the device is raised by the next of these calls rather than by the `send_message()` that sent the packet
+* New `receive_buffer_size` (default 4096, the size of Halo's receive buffer). Set it after enlarging the buffer with `frame.bluetooth.receive_buffer_size()` (newer Halo firmware) to allow more packets in flight
+* Writes are sized to fill whole BLE link-layer packets: the new `ble_write_size()` gives 495 bytes for a 515-byte MTU, rather than 512 bytes that split into three packets, the last nearly empty
+* Data acknowledgements are no longer taken as the response a `send_data()` with `await_data=True` is waiting for. Data response handlers still receive every notification
+* macOS: writes without response now wait until CoreBluetooth reports `canSendWriteWithoutResponse`. Bleak does not check it, and macOS silently dropped writes from a fast burst. This also applies to `send_audio()`
+
+## 3.4.0
+
+* `connect()` takes a new `connect_timeout` (default 5 s) limiting how long the BLE link may take to come up once the device is found; `timeout` still limits the scan. Previously Bleak's default of 30 s applied. A link that never comes up almost always means the device refused this host: Halo drops a host it has no bond for unless it is in pairing mode, and macOS/iOS hide that refusal and silently retry, so `connect()` used to hang for the full 30 s. It now raises `TimeoutError` after 5 s with a message asking whether the device is paired with this host. Apps can respond by suggesting the user puts Halo in pairing mode (hold the button for 5 s) and, if the host still lists it as paired, forgets it in Bluetooth settings. Pass a longer `connect_timeout` if needed
+* A `connect()` that fails after the link came up (for example, a declined pairing prompt) now disconnects that link, and does so without calling `disconnect_handler`
+
+## 3.3.2
+
+* `requires-python` raised from `>=3.7` to `>=3.10`, matching `brilliant-msg`, `brilliant-sdk` and `halo-emulator`. The old floor was never accurate: `bleak` 0.22.3 needs Python 3.8, and on 3.8/3.9 a `BrilliantBle()` created outside the running event loop fails, because `asyncio.Queue` binds to a loop at construction before 3.10. No code changes
+* The `tests` extra now includes `pytest-asyncio>=0.23.5`, which the async device tests need, and gives its other dependencies minimum versions: `aioconsole>=0.2.0` (older releases use `asyncio.coroutine`, removed in Python 3.11), `numpy>=2.2.3` and `lc3py>=1.1.3`, matching `brilliant-msg`
+
+## 3.3.1
+
+* Widened the `bleak` requirement from `>= 0.22.3, < 1.0.0` to `>= 0.22.3, < 4`. Every `bleak` release below 1.0 caps `requires-python` below 3.14, so on Python 3.14 the old pin could not be satisfied and `pip install brilliant-ble` failed with `ResolutionImpossible` (#47). None of the `bleak` APIs this package uses changed between 0.22 and 3.0. Older Pythons can still resolve 0.22.3
+
+## 3.3.0
+
+* New `NotConnectedError`, raised when an operation needs a connected device but the link is down (never connected, or dropped). `send_lua()`, `send_data()`, `send_audio()`, `send_message()`, `send_reset_signal()`, `send_break_signal()`, `send_remove_signal()`, `max_lua_payload()` and `max_data_payload()` now raise it instead of `AttributeError: 'NoneType' object has no attribute 'mtu_size'`. It subclasses both `ConnectionError` and `ValueError`, so existing `except ValueError` around `send_message()` still catches it. Teardown code that may run after a drop can catch it deliberately: `except NotConnectedError: pass`
+* `max_lua_payload()` and `max_data_payload()` raise `NotConnectedError` when disconnected rather than silently returning `0`
+* A disconnect no longer resets the whole `BrilliantBle` object: only connection state (client, characteristics, `name`, `type`) is cleared, and the handlers passed to `connect()` are kept. Previously the disconnect handler wiped itself as it fired
+* The user `disconnect_handler` is called once per disconnect; `disconnect()` no longer runs the internal handler a second time, and a late callback from an earlier connection is ignored
+* A `send_lua(await_print=True)` or `send_data(await_data=True)` waiting when the link drops now raises `NotConnectedError` straight away instead of waiting out its timeout and raising "device didn't respond". `drain_print_channel()` returns straight away
+
+## 3.2.0
+
+* New `drain_print_channel(quiet=0.25, max_total=1.5)` — discards unsolicited print output already arriving on the channel (such as the `interrupted`/reboot banner produced by a break or reset) so the next `send_lua(await_print=True)` receives a clean response rather than the stray banner. Bounded so it never hangs: returns after `quiet` seconds of silence, or `max_total` at the latest
+* New `name` property returning the connected device's name
+
+Both were added to the source during the Halo firmware 0.8.8 work but shipped without a version bump. `brilliant-msg` 7.1.0 calls `drain_print_channel()` while still allowing `brilliant-ble >= 3.0.0`, so a fresh install could resolve 3.1.1 and fail with `AttributeError` on `connect()`. Use `brilliant-msg` 7.1.1 or later, which requires this release.
+
+## 3.1.1
+
+* Fixed `upload_file_from_string()` failing on Lua files containing non-ASCII characters (e.g. `°`): chunks are now sized by UTF-8 byte length rather than string length, so multi-byte characters can no longer push a packet over the MTU. Multi-byte characters and escape sequences are never split across chunks
+* New `chunk_lua_string()` module-level function exposing the byte-accurate chunking
+
+## 3.1.0
+
+* New `ota_flash_firmware()` — flashes signed app firmware (`zephyr.signed.bin`) to a Halo device over the BLE SMP (MCUmgr) OTA service. By default the uploaded image is confirmed and the device rebooted in one call; pass `confirm=False` to mark the image for a one-shot test boot instead (MCUboot reverts to the previous firmware on the next reboot unless confirmed). Optional `progress_handler(bytes_sent, total_bytes)` callback (sync or async) reports upload progress; `reboot` and `chunk_size` parameters. Halo only
+* New `ota_confirm()` — confirms the currently running firmware image, completing a `confirm=False` test flash after reboot and reconnection. Halo only
+* New `OtaError` exception raised by the OTA methods
+* New `examples/ota_flash.py` demonstrating OTA flashing. Note that first-time flashing and bootloader flashing still require the Alif wired tools
+
+## 3.0.0
+
+* First release of `brilliant-ble`, renamed from `frame-ble`; replace `uv add frame-ble` with `uv add brilliant-ble`
+* `FrameBle` renamed to `BrilliantBle`; update imports from `frame_ble` to `brilliant_ble`
+* Adds support for Brilliant Labs Halo in addition to Brilliant Labs Frame
+
+## 2.0.0
+
+* Added Halo device support
+* New `BrilliantDeviceType` enum (`FRAME`, `HALO`, `UNKNOWN`) — detected automatically at connection time by probing for the Halo audio TX characteristic (UUID `7a230005-5475-a6a4-654c-8431f6ad49c4`)
+* New `FrameBle.type` property returns the detected `BrilliantDeviceType`
+* New `send_audio(data, await_bt_response=False)` — writes LC3 or PCM audio data to the Halo audio characteristic; silently drops packets that exceed a single MTU payload
+* New `send_remove_signal()` — sends `0x05` signal byte to remove `main.lua` from Halo and reset the Lua VM
+* Breaking: `connect()` now returns the device **name** rather than the device **address**
+* Breaking: `send_data(await_data=True)` now resolves when it receives an ACK byte (`\x01\x00\x00` for success, `\x01\x00\x01` for error) from the updated `data.lua` running on the device, rather than waiting for the next data event. Requires the updated `data.lua` from `frame-msg 6.0.0`.
+* `send_data()` — new `await_bt_response` parameter (default `True`) controls BLE write-with/without-response; new `timeout` parameter (default `5` seconds)
+* `send_lua()` — new `timeout` parameter (default `5` seconds) for the `await_print` wait
+* Project migrated from pip to `uv` workspace; use `uv add frame-ble` to install
+
+## 1.1.1
+
+* Updated docs - added ReadTheDocs, updated README
+
+## 1.1.0
+
+* Corrected `pyproject.toml` to include existing `bleak` dependency
+
+## 1.0.5
+
+* Allowed calls to frame.is_connected() to return False without error even if Frame was never connected
+
+## 1.0.4
+
+* Allow calls to frame.disconnect() even when connect() did not succeed (e.g. in a finally block)
+* Added small delays (200ms) after break signal and reset signal to wait for Frame to be ready
+
+## 1.0.3
+
+* Added workaround for BlueZ backend for Bleak on Linux to force MTU negotiation
+
+## 1.0.2
+
+* Fixed bug in handling escape sequences in file uploads, improved the algorithm for not splitting a chunk in the middle of an escape sequence. Also handles tab sequences
+
+## 1.0.1
+
+* Fixed missing escape sequence for bare backslashes in uploaded files
+
+## 1.0.0
+
+* First PyPI packge published
+
+## 0.1.1
+
+* Updated README.md
+
+## 0.1.0
+
+* Initial version adapted from frame-utilities-for-python

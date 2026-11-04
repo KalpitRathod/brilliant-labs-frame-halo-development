@@ -1,0 +1,188 @@
+---
+name: release
+description: Cut a Halo firmware release — version bump PR + CHANGELOG entry, CI build via build-and-release.yml, pre-release, hardware verification, tag, and the final GitHub release with renamed assets. Use when asked to release, tag, or publish firmware.
+---
+
+# Release Halo firmware
+
+The whole process, in order. Versions are `MAJOR.MINOR.PATCH` with **no `v`
+prefix** on the final tag/release (e.g. `0.8.8`). The `vX.Y.Z-<run>` tags are
+CI **pre-releases** only — a separate namespace, left in place afterwards.
+
+## 0. Find the halo-firmware remote
+
+Remote names differ between checkouts. Some have `origin` pointing at the
+older frame-2-firmware repo and halo-firmware under another name. Resolve the
+remote from its URL, and pass `-R` to every `gh` command. Without `-R`, `gh`
+picks a repo from the remotes and can target the wrong one.
+
+```
+REMOTE=$(git -C alif remote -v | awk '$2 ~ /github\.com[:\/]brilliantlabsAR\/halo-firmware(\.git)?$/ && $3 == "(push)" {print $1; exit}')
+echo "${REMOTE:?no remote for brilliantlabsAR/halo-firmware}"
+git -C alif fetch "$REMOTE"
+```
+
+`$REMOTE` below means that remote. `gh` commands use
+`-R brilliantlabsAR/halo-firmware`.
+
+## 1. Version bump PR (with changelog)
+
+On a fresh branch off `$REMOTE/main` (kebab-case, e.g. `chore-version-bump-0-8-9`):
+
+- `applications/halo/VERSION`: bump `PATCHLEVEL` (or MINOR). `EXTRAVERSION`
+  must stay **empty** — if the working tree shows `EXTRAVERSION = debug`,
+  that's build noise; revert it, never commit it.
+- `CHANGELOG.md`: move the release's content under a new
+  `## [X.Y.Z] - YYYY-MM-DD` heading (Keep a Changelog categories: Added /
+  Changed / Fixed / Removed / Documentation) and leave `## [Unreleased]`
+  empty. Version headings are plain text, not links — releases up to 0.8.8
+  live in the private archive, so there are no reference links to maintain.
+  List every PR merged since the last tag:
+  `git log --oneline <last-tag>..$REMOTE/main`.
+- Commit as `Version Bump X.Y.Z`, open the PR, merge it as a **merge commit**
+  (repo convention — never squash, or built SHAs stop being ancestors of main).
+
+**Public-repo hygiene**: changelog and release notes are public. Describe what
+the code does; no device-fault narratives, no private device names.
+
+## 2. CI build + pre-release
+
+```
+gh workflow run build-and-release.yml -R brilliantlabsAR/halo-firmware -f branch=main -f create_release=true
+gh run watch <run-id> -R brilliantlabsAR/halo-firmware   # ~15–25 min: two pristine sysbuild builds in Docker
+```
+
+The workflow builds the app **debug and release** variants pristine, plus the
+factory test firmware (`tests/halo`), uploads a `halo-firmware-<ver>`
+artifact, and publishes pre-release `vX.Y.Z-<run#>` with:
+
+- `halo-firmware-X.Y.Z-{release,debug}.signed.bin` — OTA payloads
+- `halo-bootloader-X.Y.Z.bin` — MCUboot (one file: RELEASE doesn't touch
+  MCUboot's config, and the workflow fails if the two builds ever differ)
+- `halo-factory-test-X.Y.Z.{bin,elf,map}` — factory test firmware: a raw
+  Zephyr image at 0x80000000, no MCUboot, not signed; written by the Alif SE
+  tools for PCBA test
+- `halo-mainboard-test-X.Y.Z.{bin,elf,map}`: the station test for bare main
+  PCBs (`tests/halo_mainboard`), in the same raw form. It runs at boot and
+  prints `FT` lines on the console
+- `VERSION.txt` and `SHA256SUMS`. `VERSION.txt` records the commit actually built,
+  the CI image digest (`Build Image:`) and the compiler version (`Toolchain:`).
+  A release is reproducible byte-for-byte by building that commit in that
+  image digest. `:latest` moves whenever `west.yml` or `Dockerfile.ci` changes.
+
+The bootloader, factory test and main-board test images are wired-only
+(SE-UART), never OTA.
+Production flashing (halo-prod-flash) pins these bytes by SHA-256.
+
+## 3. Hardware verification — dev kit first, always
+
+Download the pre-release assets and OTA-flash the **release** image to the
+dev kit with the `flash` skill (never a production unit first):
+
+```
+gh release download vX.Y.Z-<run#> -R brilliantlabsAR/halo-firmware -p '*release.signed.bin' -D <dir>
+```
+
+Then run `tools/verify.py --name "<device>"` — it must print `fw X.Y.Z` and
+`repl-ok`. For provenance, also probe `frame.GIT_TAG` over the REPL: it is
+the app repo's **12-char commit hash** at build time (`APP_BUILD_VERSION`
+from `git describe --abbrev=12 --always` — hash-only, because plain
+`git describe` ignores lightweight tags and this repo's tags are
+lightweight). It should match the built commit; an **empty string** means
+the build's `git describe` silently failed (CI images of 0.8.8 and earlier
+all have this — fixed by the `safe.directory` line in the workflow). The
+MCUboot image hash `ota_flash.py` prints is the other provenance anchor.
+
+### Pre-release test battery (required before tagging)
+
+With the release image confirmed on the dev kit, run both unattended device
+suites against it. Neither needs a human; together they take about 40 min.
+Run them one after the other, never at the same time: both hold the BLE link.
+
+1. **Firmware suite** — `applications/halo/tests/run_tests.py` (the
+   `auto` set; see that directory's README for the tags and pass rule):
+   ```
+   alif/applications/halo/tests/run_tests.py --name "<dev kit>" -v
+   ```
+2. **Python SDK suite** — from a `brilliant_sdk` checkout on its up-to-date
+   `main` (`<sdk>/python`). It tests the SDK as it stands against this
+   firmware:
+   ```
+   (cd <sdk>/python && uv sync --all-packages --all-extras && uv run pytest -q)   # hardware-free
+   python3 <sdk>/python/tools/run_device_tests.py --name "<dev kit>" --out <dir>
+   ```
+   `run_device_tests.py` runs the SDK's standalone device scripts that end on
+   their own, bounds the polling ones, and runs the pytest device modules
+   with `BRILLIANT_DEVICE=1`.
+
+Both must finish with no failures, or each failure must be explained and
+tracked (a known SDK-side issue, a flaky BLE drop that passes on a rerun with
+`--only`). Record the pass/fail counts and the commits tested (firmware
+build commit, SDK `main` commit) in the release PR or the hand-off. The
+interactive tests (button, taps, AAD, camera, standby) are not part of the
+battery; run them by hand when a release touches those features.
+
+Then roll out to production units as desired (their `main.lua` apps
+survive OTA).
+
+## 4. Tag
+
+Lightweight tag named exactly `X.Y.Z` on the **bump commit's merge on main**:
+
+```
+git -C alif fetch "$REMOTE" && git -C alif tag X.Y.Z "$REMOTE/main" && git -C alif push "$REMOTE" X.Y.Z
+```
+
+(Confirm `$REMOTE/main` HEAD is the bump PR's merge commit first; if later PRs
+have landed, tag the merge commit of the bump PR instead.)
+
+## 5. Final GitHub release
+
+Rename the two OTA payloads to the short convention, carry the factory
+images over under their CI names, and regenerate `SHA256SUMS` for the final
+file names (the bytes, and so the hashes, match the pre-release's):
+
+- `halo-firmware-X.Y.Z-release.signed.bin` → `X.Y.Z.bin`
+- `halo-firmware-X.Y.Z-debug.signed.bin` → `X.Y.Z-debug.bin`
+- `halo-bootloader-X.Y.Z.bin` (unchanged name)
+- `halo-factory-test-X.Y.Z.bin` and `halo-mainboard-test-X.Y.Z.bin`
+  (unchanged names; their `.elf`/`.map` stay on the pre-release)
+
+```
+gh release download vX.Y.Z-<run#> -R brilliantlabsAR/halo-firmware -D <dir> -p '*.signed.bin' -p 'halo-bootloader-*' -p 'halo-factory-test-*.bin' -p 'halo-mainboard-test-*.bin' -p SHA256SUMS
+(cd <dir> && shasum -a 256 -c SHA256SUMS --ignore-missing)   # verify before renaming
+mv <dir>/halo-firmware-X.Y.Z-release.signed.bin <dir>/X.Y.Z.bin
+mv <dir>/halo-firmware-X.Y.Z-debug.signed.bin <dir>/X.Y.Z-debug.bin
+(cd <dir> && shasum -a 256 X.Y.Z.bin X.Y.Z-debug.bin halo-bootloader-X.Y.Z.bin halo-factory-test-X.Y.Z.bin halo-mainboard-test-X.Y.Z.bin > SHA256SUMS)
+```
+
+Body = hand-written summary + generated PR list. Write the body to a file
+(never inline heredocs with backticks):
+
+```
+gh release create X.Y.Z -R brilliantlabsAR/halo-firmware <dir>/X.Y.Z.bin <dir>/X.Y.Z-debug.bin \
+  <dir>/halo-bootloader-X.Y.Z.bin <dir>/halo-factory-test-X.Y.Z.bin \
+  <dir>/halo-mainboard-test-X.Y.Z.bin <dir>/SHA256SUMS \
+  --title "Release X.Y.Z" --notes-file <file> --generate-notes --latest
+```
+
+Body format (see 0.8.7/0.8.8 for reference): `## Halo firmware X.Y.Z`,
+"Compared to \`prev\` (\`<sha>\`)." line, `### Highlights`, `### Lua / app
+notes` (API changes apps must react to), optional `### Ops`, link to
+CHANGELOG.md. `--generate-notes` appends the "What's Changed" PR list and the
+Full Changelog compare link below your notes.
+
+## Gotchas
+
+- **The final release is created manually** — the workflow only makes
+  pre-releases. Don't skip the asset rename.
+- The pre-release can be built from the bump **branch** before the PR merges
+  (input `branch=<bump-branch>`) when parallelizing; content is identical as
+  long as the PR merges as a merge commit with no other PRs landing in between.
+- The workflow runs on `workflow_dispatch` only — nothing releases
+  automatically on tag push.
+- Kconfig-default changes are safe here: CI always builds pristine.
+- `VERSION_TWEAK` non-zero appends `.TWEAK`; `EXTRAVERSION` appends `-<str>` —
+  both should be 0/empty for a normal release.
+- Mind MCUboot test-boot semantics when verifying: an image that crashes
+  before self-confirm is rolled back on the next boot (see the flash skill).

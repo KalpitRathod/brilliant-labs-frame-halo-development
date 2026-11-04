@@ -1,0 +1,264 @@
+name: Build and Release Firmware
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build'
+        required: true
+        default: 'main'
+        type: string
+      create_release:
+        description: 'Create pre-release'
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    # Do not use 'container:' so we can clean up disk space BEFORE downloading the huge Docker image
+    
+    steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: false
+          swap-storage: true
+
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.branch }}
+          path: latest-code
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # :latest is rebuilt whenever west.yml or Dockerfile.ci changes, so
+      # resolve it to a digest, build with exactly that image and record it:
+      # rerunning that digest is what reproduces a release byte-for-byte.
+      - name: Resolve CI image digest
+        id: image
+        run: |
+          docker pull ghcr.io/brilliantlabsar/halo-firmware-ci:latest
+          echo "ref=$(docker inspect --format '{{index .RepoDigests 0}}' ghcr.io/brilliantlabsar/halo-firmware-ci:latest)" >> $GITHUB_OUTPUT
+
+      - name: Build firmware inside Docker container
+        run: |
+          docker run --rm -v ${{ github.workspace }}/latest-code:/host_code \
+            -e GH_TOKEN=${{ secrets.PRIVATE_REPO_TOKEN }} \
+            -e CI_IMAGE=${{ steps.image.outputs.ref }} \
+            ${{ steps.image.outputs.ref }} \
+            /bin/bash -c "
+              set -e  # Ensure script fails if west build fails
+
+              echo 'Syncing files...'
+              rsync -a /host_code/ /opt/workspace/project/
+              cd /opt/workspace/project
+
+              # Sync west projects to this checkout's west.yml (no-op when the
+              # prebaked image is already current). GH_TOKEN is only needed
+              # while any manifest repo is private; when it is unset the plain
+              # URLs are used.
+              # Purge any credentialed URL rewrites baked into the image
+              # before installing ours (a stale one shadows a fresh token).
+              for u in \$(git config --global --name-only --get-regexp 'url\\..*\\.insteadof' 2>/dev/null); do
+                git config --global --unset-all \"\$u\" || true
+              done
+              if [ -n \"\$GH_TOKEN\" ]; then
+                git config --global url.\"https://x-access-token:\${GH_TOKEN}@github.com/\".insteadOf \"https://github.com/\"
+              fi
+              # The rsynced checkout keeps the host runner's UID, so git run
+              # as root inside the container fails with 'dubious ownership'.
+              # Zephyr's gen_version_h swallows that failure, leaving
+              # APP_BUILD_VERSION -- and therefore frame.GIT_TAG -- empty.
+              git config --global --add safe.directory '*'
+              west update
+
+              cd /opt/workspace/project/applications/halo
+              VERSION_MAJOR=\$(grep 'VERSION_MAJOR' VERSION | cut -d'=' -f2 | tr -d ' ')
+              VERSION_MINOR=\$(grep 'VERSION_MINOR' VERSION | cut -d'=' -f2 | tr -d ' ')
+              PATCHLEVEL=\$(grep 'PATCHLEVEL' VERSION | cut -d'=' -f2 | tr -d ' ')
+              VERSION_TWEAK=\$(grep 'VERSION_TWEAK' VERSION | cut -d'=' -f2 | tr -d ' ')
+              EXTRAVERSION=\$(grep 'EXTRAVERSION' VERSION | cut -d'=' -f2 | tr -d ' ')
+              VERSION=\"\${VERSION_MAJOR}.\${VERSION_MINOR}.\${PATCHLEVEL}\"
+              if [ ! -z \"\$VERSION_TWEAK\" ] && [ \"\$VERSION_TWEAK\" != \"0\" ]; then
+                VERSION=\"\${VERSION}.\${VERSION_TWEAK}\"
+              fi
+              if [ ! -z \"\$EXTRAVERSION\" ]; then
+                VERSION=\"\${VERSION}-\${EXTRAVERSION}\"
+              fi
+              
+              echo \"Building version \$VERSION\"
+              
+              cd /opt/workspace/project
+              export ZEPHYR_TOOLCHAIN_VARIANT=zephyr
+              
+              echo \"Building Debug version \$VERSION...\"
+              west build -b halo applications/halo/ -p --sysbuild
+              
+              # Plain cp (no existence guards): with set -e a missing image
+              # fails the run instead of silently shipping a partial release.
+              mkdir -p release_artifacts
+              cp build/halo/zephyr/zephyr.signed.bin release_artifacts/halo-firmware-\${VERSION}-debug.signed.bin
+              cp build/mcuboot/zephyr/zephyr.bin mcuboot-debug.bin
+
+              echo \"Building Release version \$VERSION...\"
+              RELEASE=1 west build -b halo applications/halo/ -p --sysbuild
+
+              cp build/halo/zephyr/zephyr.signed.bin release_artifacts/halo-firmware-\${VERSION}-release.signed.bin
+              # RELEASE only selects the app's Kconfig fragments; MCUboot is
+              # configured identically in both builds, so one bootloader is
+              # published. Fail loudly if that ever stops being true rather
+              # than publish a debug/release pair nobody has reasoned about.
+              if ! cmp -s build/mcuboot/zephyr/zephyr.bin mcuboot-debug.bin; then
+                echo 'error: MCUboot differs between debug and release builds' >&2
+                exit 1
+              fi
+              cp build/mcuboot/zephyr/zephyr.bin release_artifacts/halo-bootloader-\${VERSION}.bin
+
+              # Factory test firmware (tests/halo): a standalone Zephyr image
+              # with no MCUboot and no imgtool signature, linked at
+              # 0x80000000. The Alif SE tools write it via the ATOC as the boot
+              # image for PCBA test, in the space MCUboot later occupies. It is
+              # larger than the 128K mcuboot partition and runs on into slot0;
+              # that is fine because production flashing rewrites both
+              # afterwards. It stays well clear of the storage partition.
+              echo \"Building factory test firmware \$VERSION...\"
+              west build -b halo tests/halo -d build-factory-test -p
+              cp build-factory-test/zephyr/zephyr.bin release_artifacts/halo-factory-test-\${VERSION}.bin
+              cp build-factory-test/zephyr/zephyr.elf release_artifacts/halo-factory-test-\${VERSION}.elf
+              cp build-factory-test/zephyr/zephyr.map release_artifacts/halo-factory-test-\${VERSION}.map
+
+              # Main-board factory test (tests/halo_mainboard): the lean,
+              # auto-running station test for bare main PCBs. Same raw form
+              # as the factory test (0x80000000, no MCUboot, unsigned); it
+              # reports FT lines on the console (see its README).
+              echo \"Building main-board test \$VERSION...\"
+              west build -b halo tests/halo_mainboard -d build-mainboard-test -p
+              cp build-mainboard-test/zephyr/zephyr.bin release_artifacts/halo-mainboard-test-\${VERSION}.bin
+              cp build-mainboard-test/zephyr/zephyr.elf release_artifacts/halo-mainboard-test-\${VERSION}.elf
+              cp build-mainboard-test/zephyr/zephyr.map release_artifacts/halo-mainboard-test-\${VERSION}.map
+
+              # github.sha is the dispatch ref, not necessarily the built branch
+              COMMIT=\$(git rev-parse HEAD)
+              CC=\$(sed -n 's/^CMAKE_C_COMPILER:[A-Z]*=//p' build-factory-test/CMakeCache.txt)
+              TOOLCHAIN=\$(\"\$CC\" --version | head -n 1)
+
+              echo 'Halo Firmware Build Information' > release_artifacts/VERSION.txt
+              echo '================================' >> release_artifacts/VERSION.txt
+              echo \"Version: \${VERSION}\" >> release_artifacts/VERSION.txt
+              echo \"Branch: ${{ inputs.branch }}\" >> release_artifacts/VERSION.txt
+              echo \"Commit: \${COMMIT}\" >> release_artifacts/VERSION.txt
+              echo \"Build Date: \$(date -u '+%Y-%m-%d %H:%M:%S UTC')\" >> release_artifacts/VERSION.txt
+              echo \"Build Image: \${CI_IMAGE}\" >> release_artifacts/VERSION.txt
+              echo \"Toolchain: \${TOOLCHAIN}\" >> release_artifacts/VERSION.txt
+              echo '' >> release_artifacts/VERSION.txt
+              echo 'Files:' >> release_artifacts/VERSION.txt
+              echo \"- halo-firmware-\${VERSION}-release.signed.bin (Production Application)\" >> release_artifacts/VERSION.txt
+              echo \"- halo-firmware-\${VERSION}-debug.signed.bin (Debug Application)\" >> release_artifacts/VERSION.txt
+              echo \"- halo-bootloader-\${VERSION}.bin (MCUboot)\" >> release_artifacts/VERSION.txt
+              echo \"- halo-factory-test-\${VERSION}.bin (Factory test firmware, raw image at 0x80000000)\" >> release_artifacts/VERSION.txt
+              echo \"- halo-factory-test-\${VERSION}.elf/.map (Factory test symbols)\" >> release_artifacts/VERSION.txt
+              echo \"- halo-mainboard-test-\${VERSION}.bin (Main-board station test, raw image at 0x80000000)\" >> release_artifacts/VERSION.txt
+              echo \"- halo-mainboard-test-\${VERSION}.elf/.map (Main-board test symbols)\" >> release_artifacts/VERSION.txt
+              echo '- SHA256SUMS' >> release_artifacts/VERSION.txt
+              echo '' >> release_artifacts/VERSION.txt
+              echo 'Flash Instructions (over-the-air, no cable needed):' >> release_artifacts/VERSION.txt
+              echo \"  uv run alif/applications/halo/tools/ota_flash.py halo-firmware-\${VERSION}-release.signed.bin\" >> release_artifacts/VERSION.txt
+              echo '' >> release_artifacts/VERSION.txt
+              echo 'See alif/applications/halo/FLASHING.md for details (test-boot' >> release_artifacts/VERSION.txt
+              echo 'semantics, recovery). The bootloader and factory test .bin' >> release_artifacts/VERSION.txt
+              echo 'files are not OTA-flashable; they are only used for wired' >> release_artifacts/VERSION.txt
+              echo 'factory flashing.' >> release_artifacts/VERSION.txt
+
+              (cd release_artifacts && sha256sum -- * > SHA256SUMS)
+
+              # Copy artifacts out of the container to the host
+              cp -r release_artifacts /host_code/
+              
+              # Expose version to GitHub Actions Environment via host file
+              echo \"version=\$VERSION\" > /host_code/build_version.txt
+              echo \"commit=\$COMMIT\" >> /host_code/build_version.txt
+            "
+
+      - name: Verify outputs and set environment variables
+        id: version
+        run: |
+          grep -E '^(version|commit)=' latest-code/build_version.txt >> $GITHUB_OUTPUT
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: halo-firmware-${{ steps.version.outputs.version }}
+          path: latest-code/release_artifacts/*
+          retention-days: 90
+
+      - name: Create Pre-Release
+        if: inputs.create_release
+        uses: softprops/action-gh-release@v3
+        with:
+          name: Halo Firmware v${{ steps.version.outputs.version }}
+          tag_name: v${{ steps.version.outputs.version }}-${{ github.run_number }}
+          prerelease: true
+          draft: false
+          body: |
+            # Halo Firmware Pre-Release v${{ steps.version.outputs.version }}
+            
+            **Build Information:**
+            - Version: `${{ steps.version.outputs.version }}`
+            - Branch: `${{ inputs.branch }}`
+            - Commit: `${{ steps.version.outputs.commit }}`
+            - Build image: `${{ steps.image.outputs.ref }}`
+
+            **Files:**
+            - `halo-firmware-${{ steps.version.outputs.version }}-release.signed.bin` - Production firmware (signed)
+            - `halo-firmware-${{ steps.version.outputs.version }}-debug.signed.bin` - Debug firmware (signed)
+            - `halo-bootloader-${{ steps.version.outputs.version }}.bin` - MCUboot bootloader
+            - `halo-factory-test-${{ steps.version.outputs.version }}.bin` - Factory test firmware (raw image at 0x80000000, no MCUboot)
+            - `halo-factory-test-${{ steps.version.outputs.version }}.{elf,map}` - Factory test symbols
+            - `halo-mainboard-test-${{ steps.version.outputs.version }}.bin` - Main-board station test (raw image at 0x80000000, no MCUboot)
+            - `halo-mainboard-test-${{ steps.version.outputs.version }}.{elf,map}` - Main-board test symbols
+            - `VERSION.txt` - Build information and flash instructions
+            - `SHA256SUMS` - SHA-256 of every asset above
+            
+            **Flashing (over the air — this is how Halo owners install firmware):**
+            ```
+            uv run alif/applications/halo/tools/ota_flash.py halo-firmware-${{ steps.version.outputs.version }}-release.signed.bin
+            ```
+            See `alif/applications/halo/FLASHING.md` for details. The bootloader
+            and factory/main-board test `.bin` files are for wired factory flashing only —
+            they cannot be flashed over the air.
+            
+            ---
+            
+            ⚠️ This is a pre-release build for testing purposes.
+          files: |
+            latest-code/release_artifacts/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build summary
+        run: |
+          echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version:** ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch:** ${{ inputs.branch }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** ${{ steps.version.outputs.commit }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Build Artifacts:" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          ls -lh latest-code/release_artifacts/ >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
