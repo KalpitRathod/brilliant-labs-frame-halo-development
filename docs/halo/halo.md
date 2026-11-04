@@ -1,12 +1,4 @@
----
-title: Halo
-description: Technical documentation for the Brilliant Halo.
-image: /images/halo/halo-splash.png
-nav_order: 2
-has_children: true
----
-
-![Brilliant Halo](/halo/images/halo-splash.png)
+![Brilliant Halo](images/halo-splash.png)
 
 # Getting started with Halo
 
@@ -26,7 +18,7 @@ Press and hold Halo's button for approximately 5 seconds until you hear a chime 
 
 ## How do I adjust the display?
 
-Slide the display mount left or right and tilt it up or down to line it up with your eye, then rotate the display lens to bring the image into focus. See [Fitting and focusing the display](/halo/using-halo#fitting-and-focusing-the-display) for more detail.
+Slide the display mount left or right and tilt it up or down to line it up with your eye, then rotate the display lens to bring the image into focus. See [Fitting and focusing the display](https://docs.brilliant.xyz/halo/using-halo/#fitting-and-focusing-the-display) for more detail.
 
 ## What does the button do?
 
@@ -36,7 +28,7 @@ Slide the display mount left or right and tilt it up or down to line it up with 
 | Hold for 2 seconds (beep) | Sleep |
 | Hold for 5 seconds (chime) | Pairing mode |
 
-See [Button controls](/halo/using-halo#button-controls) for the full list, including how to restart and factory reset Halo.
+See [Button controls](https://docs.brilliant.xyz/halo/using-halo/#button-controls) for the full list, including how to restart and factory reset Halo.
 
 ## How do I update my Halo?
 
@@ -56,9 +48,9 @@ Brilliant Noa is **coming soon** to both Apple App Store for iOS and Google Play
 
 Get started making your own apps today. Follow the links below to familiarize yourself with the Halo hardware and the Brilliant SDK.
 
-- [Brilliant SDK overview](/halo/halo-sdk)
-- [Python SDK](/halo/halo-sdk-python)
-- [Flutter SDK](/halo/halo-sdk-flutter)
-- [Web Bluetooth SDK](/halo/halo-sdk-webbluetooth)
-- [Lua API Reference](/halo/halo-sdk-lua)
-- [Bluetooth LE Specifications](/halo/halo-sdk-bluetooth-specs)
+- [Brilliant SDK overview](https://docs.brilliant.xyz/halo/halo-sdk/)
+- [Python SDK](https://docs.brilliant.xyz/halo/halo-sdk-python/)
+- [Flutter SDK](https://docs.brilliant.xyz/halo/halo-sdk-flutter/)
+- [Web Bluetooth SDK](https://docs.brilliant.xyz/halo/halo-sdk-webbluetooth/)
+- [Lua API Reference](https://docs.brilliant.xyz/halo/halo-sdk-lua/)
+- [Bluetooth LE Specifications](https://docs.brilliant.xyz/halo/halo-sdk-bluetooth-specs/)

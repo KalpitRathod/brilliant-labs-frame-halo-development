@@ -1,12 +1,3 @@
----
-title: Brilliant Noa
-description: Instructions for how to delete your Brilliant Noa account
-image: /images/halo/halo-splash.png
-nav_order: 11
-has_children: false
-nav_exclude: true
----
-
 # Deleting your Brilliant Noa account 
 
 To delete your Brilliant Noa account, click on the **NOA** title to bring up the menu. Scroll down to **Account Settings** and tap on it to expand the section.

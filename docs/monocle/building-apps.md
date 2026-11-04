@@ -1,24 +1,12 @@
----
-title: Building Apps
-description: A guide on how to develop your own applications for Monocle.
-image: /images/monocle/monocle-splash.png
-nav_order: 3
-parent: Monocle
-redirect_from:
-  - /building-apps
----
-
 # Building Apps
-{: .no_toc }
 
 ---
 
 ## Getting started with AR Studio for VSCode
-{: .no_toc }
 
 AR Studio for VSCode lets you develop, test and save apps directly onto your Monocle. Download it today from the [VSCode Marketplace](https://marketplace.visualstudio.com/items?itemName=brilliantlabs.brilliant-ar-studio) and start developing your Monocle projects.
 
-![Brilliant AR Studio for VSCode](/monocle/images/vs-code-extension.png)
+![Brilliant AR Studio for VSCode](images/vs-code-extension.png)
 
 - Once installed, connect to Monocle with `Ctrl-Shift-P` → `Brilliant AR Studio: Connect`.
 - Copy the example below, and save the file as `main.py`.
@@ -50,7 +38,7 @@ MicroPython on Monocle simplifies the usage of complex protocols typically emplo
 
 This wireless functionality not only allows for effortless testing and application development on Monocle, but also enables Python commands to control Monocle from your customized iOS, Android, or Desktop app.
 
-![Diagram of Monocle network flow](/images/monocle-network-flow.png)
+![Diagram of Monocle network flow](images/monocle-network-flow.png)
 
 Below are some templates to help you get started building your own apps.
 
@@ -58,7 +46,7 @@ Below are some templates to help you get started building your own apps.
 
 Noa is our ChatGPT client for Monocle. Check out the source code for [iOS](https://github.com/brilliantlabsAR/noa-for-ios), as well as for [Android](https://github.com/brilliantlabsAR/noa-for-android) and use it as a template for your own mobile app.
 
-![Brilliant Noa for iOS App](/images/noa-for-ios-screens.png)
+![Brilliant Noa for iOS App](images/noa-for-ios-screens.png)
 
 ### Javascript
 
@@ -66,8 +54,8 @@ The [WebREPL](https://repl.brilliant.xyz) is a good starting point building your
 
 Check out the full instructions and the source code [here](https://github.com/siliconwitchery/web-bluetooth-repl/).
 
-![Accessing MicroPython on Monocle using the WebREPL interface](/monocle/images/micropython-web-repl.png)
+![Accessing MicroPython on Monocle using the WebREPL interface](images/micropython-web-repl.png)
 
 ### Community projects
 
-For more application examples and ideas, check out the [community projects](/community) section to see what others have built.
+For more application examples and ideas, check out the [community projects](https://docs.brilliant.xyz/community/) section to see what others have built.

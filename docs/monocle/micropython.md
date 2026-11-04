@@ -1,15 +1,4 @@
----
-title: MicroPython API
-description: A guide on how to use MicroPython on your Monocle AR device.
-image: /images/monocle/monocle-splash.png
-nav_order: 2
-parent: Monocle
-redirect_from:
-  - /monocle/micropython
----
-
 # MicroPython API
-{: .no_toc }
 
 ---
 
@@ -19,15 +8,14 @@ The [MicroPython firmware for Monocle](https://github.com/brilliantlabsAR/monocl
 
 Currently, a subset of the standard MicroPython libraries is supported, with periodic additions. We have also included additional modules that facilitate easy interaction with the Monocle hardware. To familiarize yourself with all the features, make sure to explore the [MicroPython docs site](https://docs.micropython.org/en/latest/index.html) and our own documentation.
 
-{: .highlight }
 - The [introduction video](https://www.youtube.com/watch?v=_fo8jUKMMFs) is using the former version of the API.
-- Before trying anything, you might want to update the firmware and FPGA by visiting <https://repl.brilliant.xyz> and following the indications or [manually](/monocle/update).
+- Before trying anything, you might want to update the firmware and FPGA by visiting <https://repl.brilliant.xyz> and following the indications or [manually](https://docs.brilliant.xyz/monocle/update/).
 
 ---
 
 The REPL enables you to explore the hardware capabilities and prototype your applications line by line before final implementation.
 
-As you embark on building your applications, you can conveniently save them directly onto your Monocle device. Upon booting up, Monocle will automatically attempt to execute a `main.py` file if you have created one. Using the [Brilliant AR Studio](/building-apps/#getting-started-with-ar-studio-for-vscode), you can easily create, save, and edit files directly on your Monocle.
+As you embark on building your applications, you can conveniently save them directly onto your Monocle device. Upon booting up, Monocle will automatically attempt to execute a `main.py` file if you have created one. Using the [Brilliant AR Studio](https://docs.brilliant.xyz/monocle/building-apps/#getting-started-with-ar-studio-for-vscode), you can easily create, save, and edit files directly on your Monocle.
 
 Typing `help('modules')` lists all the modules contained on the device:
 
@@ -72,10 +60,7 @@ To gain a clear understanding of the purpose and return values of each function 
 ---
 
 ## Library reference
-{: .no_toc }
 
-1. TOC
-{:toc}
 
 ---
 
@@ -84,7 +69,6 @@ To gain a clear understanding of the purpose and return values of each function 
 > Standard MicroPython [built in functions](https://docs.micropython.org/en/latest/library/builtins.html) are supported.
 
 #### Example
-{: .no_toc }
 
 ```python
 import builtins
@@ -113,7 +97,6 @@ help(builtins) # Lists all of the built-in MicroPython functions
 | `Storage(start, length)` **class**            | The `Storage` class is used internally for initializing and accessing the file system. This class shouldn't be accessed, unless you want to reformat the internal storage. To learn more about how MicroPython handles user files, have a look at the documentation [here](https://docs.micropython.org/en/latest/esp8266/tutorial/filesystem.html) and [here](https://docs.micropython.org/en/latest/reference/filesystem.html).
 
 #### Example
-{: .no_toc }
 
 ```python
 import device
@@ -176,7 +159,7 @@ device.battery_level() # Returns the current battery level as a percentage
 
 This shows, for a given coordinate `(x,y)` used as reference, where the text will be placed:
 
-![Illustration of the `justify=...` parameter](/monocle/images/micropython-justify.drawio.svg)
+![Illustration of the `justify=...` parameter](images/micropython-justify.drawio.svg)
 
 ```python
 import display
@@ -215,7 +198,6 @@ display.show(text, line, outline, poly)
 | `JPEG` **constant**                            | String constant which represents a JPEG output format.
 
 #### Example
-{: .no_toc }
 
 ```python
 import camera
@@ -245,7 +227,6 @@ while data := camera.read(bluetooth.max_length()):
 | `read(samples)` **function**                                           | Reads out a number of recorded audio samples from the FPGA as a **bytearray**. Samples are either signed 16bit values, or signed 8bit values, depending on what `bit_depth` was previously set to during recording. Up to 127 samples can be read at a time. **Note** if using 16bit mode, the number of bytes returned are always twice the sample value.
 
 #### Example
-{: .no_toc }
 
 ```python
 import microphone
@@ -284,7 +265,6 @@ while True:
 | `EITHER` **constant**                      | String constant which represents either pads.
 
 #### Example
-{: .no_toc }
 
 ```python
 import touch
@@ -313,7 +293,6 @@ touch.callback(touch.EITHER, fn) # Attaches the same callback to either of the t
 | `GREEN` **constant**                 | String constant which represents the green led.
 
 #### Example
-{: .no_toc }
 
 ```python
 import led
@@ -337,7 +316,6 @@ led.off(led.RED) # Turns off the red LED
 | `run(state)` **function**               | `run(False)` stops and powers down the FPGA. `run(True)` powers up the FPGA and restarts operation. This function should only be using during the FPGA application update process. Once stopped, the camera and display will no longer be configured, and a `device.reset()` would be required to reinitialize them. Calling `run()` without any argument will return the current run state of the FPGA.
 
 #### Example
-{: .no_toc }
 
 ```python
 import fpga
@@ -361,7 +339,6 @@ fpga.write(0x1234, b'') # Doesn't write anything specific, but acts as a command
 |`max_length()` **function**                    | Returns the maximum data size the Bluetooth host allows for single transfers.
 
 #### Example
-{: .no_toc }
 
 ```python
 import bluetooth
@@ -397,7 +374,6 @@ bluetooth.receive_callback(fn) # Attaches the above function to the receive call
 | `ticks_diff(ticks1,ticks2)`&nbsp;**function**  | Returns the difference between two timestamps. i.e. `ticks1 - ticks2`, but takes into consideration if the numbers wrap around.
 
 #### Example
-{: .no_toc }
 
 ```python
 import utime
@@ -420,7 +396,6 @@ time.now() # Returns the current time as a human readable dictionary
 | `Fpga` **class**                  | `Fpga` contains three low level functions which are used to update the FPGA. `Fpga.erase()` erases the existing application, `Fpga.write(bytes[])` sequentially writes in the new application, and `Fpga.read(address, length)` can be used to read back and verify the application. For details on how the FPGA application is updated, check out the [FPGA application updates](#fpga-application-updates) section.
 
 #### Example
-{: .no_toc }
 
 ```python
 import update
@@ -434,7 +409,6 @@ update.micropython() # Reboots the device into update mode for updating the Micr
 > Standard MicroPython [garbage collection](https://docs.micropython.org/en/latest/library/gc.html) is supported.
 
 #### Example
-{: .no_toc }
 
 ```python
 import gc
@@ -514,14 +488,12 @@ gc.collect()
 ---
 
 ## Under the hood
-{: .no_toc }
 
 This section describes how data is transferred to and from Monocle over Bluetooth.
 
 For testing everything Bluetooth related, try our the nRF Connect App, for [desktop](https://www.nordicsemi.com/Products/Development-tools/nrf-connect-for-desktop), [Android](https://play.google.com/store/apps/details?id=no.nordicsemi.android.mcp&hl=en&gl=US), or [iOS](https://apps.apple.com/us/app/nrf-connect-for-mobile/id1054362403).
 
 ### Communication
-{: .no_toc }
 
 All MicroPython communication, i.e. the REPL interface, is accessed via a single Bluetooth *Service* containing two *Characteristics*.
 
@@ -533,7 +505,7 @@ The RX characteristic is *write* only, and transports serial string data from th
 
 Each characteristic transports string data of any length up to the negotiated *MTU size - 3 bytes*. Longer strings must be chopped up and will be automatically rejoined on the receiving side by Monocle. Likewise if Monocle wishes to send longer responses than can fit into a single MTU payload, the data will arrive sequentially, and can be concatenated by the central Bluetooth app. The diagram below describes how communication operates between Monocle and a central device.
 
-![Sequence diagram of the Monocle serial data service](/monocle/images/bluetooth-serial-service-sequence-diagram.svg)
+![Sequence diagram of the Monocle serial data service](images/bluetooth-serial-service-sequence-diagram.svg)
 
 A secondary Bluetooth *Service*, again containing two *Characteristics*, is used to transport raw data such as image, audio and firmware update data. The mechanism for the raw data service is similar to the serial data service, aside from the fact that `null` or `0` characters may also be included within the payload.
 
@@ -544,7 +516,6 @@ A secondary Bluetooth *Service*, again containing two *Characteristics*, is used
 Raw data transfer may often be bigger than a single MTU payload. Similarly to the serial data, it may need to be broken up into pieces. To help reconstruct the packets sent or received by Monocle, a flag is present at the start of each payload to determine if it's either a starting payload, middle payload, end payload, or a small single buffer payload. The exact mechanisms for different types of data transfer are outlined below.
 
 ### Downloading media
-{: .no_toc }
 
 Media files such as audio and images may be downloaded from the Monocle using the raw data service mentioned in the [Communication section](#communication). Files may also be sent asynchronously by Monocle when they are ready.
 
@@ -552,10 +523,9 @@ Due to the small payload size of Bluetooth packets, the file may be spit into ma
 
 The first payload includes metadata about the file such as the filename (with a relevant file extension) and the file size. The sequence diagram below describes how a file is broken into several parts and the data can be recombined to construct the full file: 
 
-![Sequence diagram of the Monocle raw data service](/monocle/images/bluetooth-raw-data-service-sequence-diagram.svg)
+![Sequence diagram of the Monocle raw data service](images/bluetooth-raw-data-service-sequence-diagram.svg)
 
 ### Firmware updates
-{: .no_toc }
 
 Firmware updates are handled in two parts:
 

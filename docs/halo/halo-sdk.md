@@ -1,28 +1,9 @@
----
-title: Brilliant SDK
-description: A guide on how to develop your own applications for Halo.
-image: /images/halo/halo-splash.png
-nav_order: 2
-parent: Halo
-has_children: true
-redirect_from:
-  - /halo/building-apps
-  - /halo/building-apps-sdk
-  - /halo/building-apps-lua
-  - /halo/building-apps-bluetooth-specs
-  - /halo/sdk
----
-
 # Building Apps with the Brilliant SDK
-{: .no_toc }
 
-{: .note }
 Migrating from the Frame SDK? See the Migration guides for [Python](https://github.com/brilliantlabsAR/brilliant_sdk/blob/main/python/MIGRATION.md), [Flutter](https://github.com/brilliantlabsAR/brilliant_sdk/blob/main/flutter/MIGRATION.md) and [Web Bluetooth](https://github.com/brilliantlabsAR/brilliant_sdk/blob/main/webbluetooth/MIGRATION.md).
 
 ---
 
-1. TOC
-{:toc}
 
 ---
 
@@ -38,22 +19,22 @@ Halo doesn't have its own app launcher or traditional app installation system. T
 
 For the quickest start:
 
-* If you're using a supported platform, begin with the SDK documentation for [Python](/halo/halo-sdk-python), [Flutter](/halo/halo-sdk-flutter), or [Web Bluetooth](/halo/halo-sdk-webbluetooth), and run the example programs. Then explore the [Lua API](/halo/halo-sdk-lua) for advanced features.
-* For other platforms, use the [Lua API](/halo/halo-sdk-lua) directly over Bluetooth using the [Bluetooth LE API documentation](/halo/halo-sdk-bluetooth-specs).
+* If you're using a supported platform, begin with the SDK documentation for [Python](https://docs.brilliant.xyz/halo/halo-sdk-python/), [Flutter](https://docs.brilliant.xyz/halo/halo-sdk-flutter/), or [Web Bluetooth](https://docs.brilliant.xyz/halo/halo-sdk-webbluetooth/), and run the example programs. Then explore the [Lua API](https://docs.brilliant.xyz/halo/halo-sdk-lua/) for advanced features.
+* For other platforms, use the [Lua API](https://docs.brilliant.xyz/halo/halo-sdk-lua/) directly over Bluetooth using the [Bluetooth LE API documentation](https://docs.brilliant.xyz/halo/halo-sdk-bluetooth-specs/).
 
 ## Development Options for Halo
 
 1. **Use the Brilliant SDK** (Recommended)
     * Build with supported platforms:
-        * [Python](/halo/halo-sdk-python) (Mac, Linux, Windows)
-        * [Flutter](/halo/halo-sdk-flutter) (iOS/Android)
-        * [Web Bluetooth](/halo/halo-sdk-webbluetooth) (Chromium browsers on desktop/Android)
+        * [Python](https://docs.brilliant.xyz/halo/halo-sdk-python/) (Mac, Linux, Windows)
+        * [Flutter](https://docs.brilliant.xyz/halo/halo-sdk-flutter/) (iOS/Android)
+        * [Web Bluetooth](https://docs.brilliant.xyz/halo/halo-sdk-webbluetooth/) (Chromium browsers on desktop/Android)
     * Benefits: common tasks are simplified, many examples to follow, experimental emulator available for Python
 
 2. **Communicate via Bluetooth LE**
     * Use any platform with Bluetooth LE capabilities
     * Offers full control but requires Bluetooth LE development experience
-    * See the [Bluetooth LE API documentation](/halo/halo-sdk-bluetooth-specs)
+    * See the [Bluetooth LE API documentation](https://docs.brilliant.xyz/halo/halo-sdk-bluetooth-specs/)
 
 3. **Customize Firmware** (Advanced)
     * Requires hardware development expertise
@@ -64,14 +45,13 @@ The typical development pattern involves creating a Python desktop application o
 
 ## Development with the Brilliant SDK
 
-{: .note }
 This recommended approach offers quick and reliable Halo app development for Python, Flutter, and Web Bluetooth platforms, all under active development.
 
 Our platform SDKs simplify the low-level Bluetooth and Lua APIs, eliminating the need to write boilerplate code for device discovery, connection, and communication.
 
-Familiarity with the [Lua API](/halo/halo-sdk-lua) remains useful for main application event loops, `main.lua` scripts that run at wakeup, and custom on-device processing.
+Familiarity with the [Lua API](https://docs.brilliant.xyz/halo/halo-sdk-lua/) remains useful for main application event loops, `main.lua` scripts that run at wakeup, and custom on-device processing.
 
-Check the [Python](/halo/halo-sdk-python), [Flutter](/halo/halo-sdk-flutter), or [Web Bluetooth](/halo/halo-sdk-webbluetooth) SDK documentation for implementation details.
+Check the [Python](https://docs.brilliant.xyz/halo/halo-sdk-python/), [Flutter](https://docs.brilliant.xyz/halo/halo-sdk-flutter/), or [Web Bluetooth](https://docs.brilliant.xyz/halo/halo-sdk-webbluetooth/) SDK documentation for implementation details.
 
 ## Direct Bluetooth LE Development
 
@@ -79,7 +59,7 @@ For developers comfortable with Bluetooth LE, this approach offers maximum flexi
 
 After establishing BLE communication, you'll use Lua to control Halo's functions. Halo provides a Lua 5.4 virtual machine where you can execute scripts or use the Lua REPL over the BLE interface.
 
-Refer to the [Bluetooth LE API documentation](/halo/halo-sdk-bluetooth-specs) and the [full Lua API reference](/halo/halo-sdk-lua) for details on Halo's capabilities.
+Refer to the [Bluetooth LE API documentation](https://docs.brilliant.xyz/halo/halo-sdk-bluetooth-specs/) and the [full Lua API reference](https://docs.brilliant.xyz/halo/halo-sdk-lua/) for details on Halo's capabilities.
 
 ## Firmware Customization
 

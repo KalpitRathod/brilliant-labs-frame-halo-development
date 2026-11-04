@@ -1,15 +1,4 @@
----
-title: Python
-description: An overview of the Brilliant SDK for building Python apps that talk to Brilliant Halo.
-image: /images/halo/halo-splash.png
-nav_order: 1
-parent: Brilliant SDK
-grand_parent: Halo
-nav_enabled: true
----
-
 # Brilliant SDK for Python
-{: .no_toc }
 
 ---
 
@@ -19,20 +8,18 @@ The Brilliant SDK for Python also supports **Frame** devices. `brilliant-ble` au
 
 ---
 
-1. TOC
-{:toc}
 
 ---
 
 ## `brilliant-ble` package: low-level connectivity
 
-| [![Available on PyPI](https://img.shields.io/pypi/v/brilliant-ble)](https://pypi.org/project/brilliant-ble/){:target="_blank"} | [API Reference](https://brilliant-ble.readthedocs.io/){:target="_blank"} | [Source](https://github.com/brilliantlabsAR/brilliant_sdk/tree/main/python/packages/brilliant_ble){:target="_blank"} |
+| [![Available on PyPI](https://img.shields.io/pypi/v/brilliant-ble)](https://pypi.org/project/brilliant-ble/) | [API Reference](https://brilliant-ble.readthedocs.io/) | [Source](https://github.com/brilliantlabsAR/brilliant_sdk/tree/main/python/packages/brilliant_ble) |
 
 The `BrilliantBle` class connects to Halo (or Frame), initiating pairing if required. Lua strings can be sent for execution, optionally returning their results. Transmitted strings must be shorter than `BrilliantBle.max_lua_payload()`.
 
-[Halo-specific Lua APIs](/halo/halo-sdk-lua) can be called to draw on the display, sample the IMU, set button and data callbacks, control the microphone and speaker, and more.
+[Halo-specific Lua APIs](https://docs.brilliant.xyz/halo/halo-sdk-lua/) can be called to draw on the display, sample the IMU, set button and data callbacks, control the microphone and speaker, and more.
 
-In addition to Lua strings, `BrilliantBle` can send control commands (break, reset, remove) and custom user data messages handled by a data callback on Halo. See [Talking to Halo Over Bluetooth](/halo/halo-sdk-bluetooth-specs) for more details.
+In addition to Lua strings, `BrilliantBle` can send control commands (break, reset, remove) and custom user data messages handled by a data callback on Halo. See [Talking to Halo Over Bluetooth](https://docs.brilliant.xyz/halo/halo-sdk-bluetooth-specs/) for more details.
 
 **Halo-specific features in `brilliant-ble` 2.0.0:**
 - `BrilliantBle.type` — detected `BrilliantDeviceType` (`FRAME`, `HALO`, or `UNKNOWN`) after connection
@@ -41,7 +28,6 @@ In addition to Lua strings, `BrilliantBle` can send control commands (break, res
 - `send_data(await_data=True)` — receiver-paced flow control using ACK bytes from the device
 
 ### Example usage
-{: .no_toc }
 
 ```bash
 uv add brilliant-ble
@@ -78,14 +64,13 @@ if __name__ == "__main__":
 
 ## `brilliant-msg` package: application-level messaging
 
-| [![Available on PyPI](https://img.shields.io/pypi/v/brilliant-msg)](https://pypi.org/project/brilliant-msg/){:target="_blank"} | [API Reference](https://brilliant-msg.readthedocs.io/){:target="_blank"} | [Source](https://github.com/brilliantlabsAR/brilliant_sdk/tree/main/python/packages/brilliant_msg){:target="_blank"} |
+| [![Available on PyPI](https://img.shields.io/pypi/v/brilliant-msg)](https://pypi.org/project/brilliant-msg/) | [API Reference](https://brilliant-msg.readthedocs.io/) | [Source](https://github.com/brilliantlabsAR/brilliant_sdk/tree/main/python/packages/brilliant_msg) |
 
 `brilliant-msg` enables the host and Halo-side halves of an application to **communicate using richly typed messages** — for example transmitting sprites to Halo with width, height, palette data, and pixel data as a single object.
 
 `brilliant-msg` uses a programming model in which **a main event loop runs on Halo**. Messages are exchanged asynchronously and handled in an event-driven way. This makes it practical to build applications that simultaneously stream audio from Halo to the host *and* send display content back to Halo.
 
 ### How it works
-{: .no_toc }
 
 Large objects are serialized into multiple Bluetooth packets marked with a `msg_code`, and **efficiently reassembled on the device**. After parsing, the complete object is delivered to the Lua main loop.
 
@@ -100,7 +85,6 @@ Large objects are serialized into multiple Bluetooth packets marked with a `msg_
 - `audio.lua` — updated for Halo audio streaming
 
 ### Startup sequence
-{: .no_toc }
 
 `brilliant-msg` applications follow a standard sequence:
 
@@ -111,7 +95,6 @@ Large objects are serialized into multiple Bluetooth packets marked with a `msg_
 5. Exchange messages asynchronously
 
 ### Example usage
-{: .no_toc }
 
 ```bash
 uv add brilliant-msg
@@ -207,7 +190,7 @@ app_loop()
 
 ## `halo-emulator` package: develop without hardware (experimental)
 
-| [Source](https://github.com/brilliantlabsAR/brilliant_sdk/tree/halo/python/packages/halo_emulator){:target="_blank"} |
+| [Source](https://github.com/brilliantlabsAR/brilliant_sdk/tree/halo/python/packages/halo_emulator) |
 
 The `halo-emulator` package embeds a full Lua 5.4 runtime and replaces all `frame.*` calls with Python stubs, rendering display output to a 256×256 pixel buffer. This lets you develop, test, and debug Halo Lua apps entirely in software — no hardware required.
 
@@ -220,12 +203,10 @@ The `halo-emulator` package embeds a full Lua 5.4 runtime and replaces all `fram
 - Sandboxed filesystem — `frame.file.*` operations run against a real directory
 
 ### Installation
-{: .no_toc }
 
 `halo-emulator` is not published to PyPI. Install it by cloning the `brilliant_sdk` repository — see [Installing from source](#installing-from-source) below.
 
 ### Quick start
-{: .no_toc }
 
 ```python
 from halo_emulator import HaloEmulator
@@ -240,7 +221,6 @@ with HaloEmulator(sandbox_dir='./my_app') as emu:
 ```
 
 ### Interactive REPL
-{: .no_toc }
 
 ```bash
 halo-emulator ./my_app/
@@ -261,7 +241,6 @@ halo-emulator ./my_app/ --headless               # REPL only, no window
 ```
 
 ### Event injection
-{: .no_toc }
 
 ```python
 emu.inject_bluetooth_data(b'\x0a\x00\x05Hello')   # triggers receive_callback
@@ -272,7 +251,6 @@ emu.inject_imu_tap()                               # triggers imu.tap_callback
 ```
 
 ### State configuration
-{: .no_toc }
 
 ```python
 emu.set_battery_level(42)
@@ -282,7 +260,6 @@ emu.set_imu_raw(compass=(10, 20, 30), accel=(0, 0, 1000))
 ```
 
 ### Writing automated tests
-{: .no_toc }
 
 ```python
 import time, pytest

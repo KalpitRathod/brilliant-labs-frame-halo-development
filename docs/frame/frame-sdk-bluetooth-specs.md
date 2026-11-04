@@ -1,23 +1,11 @@
----
-title: Talking to Frame Over Bluetooth
-description: A reference on how to manually communicate with Frame over Bluetooth Low Energy
-image: /images/frame/frame-splash.png
-nav_order: 4
-parent: Frame SDK
-grand_parent: Frame
----
-
 # Talking to Frame Over Bluetooth
-{: .no_toc }
 
 ---
 
 You may want to communicate with Frame manually over Bluetooth Low Energy if we don't yet have an SDK available for your preferred development language, or if you just want to have full control of what's going on under the hood.
 
-Once you're communicating with Frame over Bluetooth, you can use the [Lua API Reference](/frame/frame-sdk-lua) to see everything you can tell it to do.
+Once you're communicating with Frame over Bluetooth, you can use the [Lua API Reference](https://docs.brilliant.xyz/frame/frame-sdk-lua/) to see everything you can tell it to do.
 
-1. TOC
-{:toc}
 
 ---
 
@@ -33,7 +21,7 @@ If already paired, Frame must be reset using the pinhole button on the charging 
 
 ### Bluetooth Connection Technical Diagram
 
-![Bluetooth connection sequence diagram](/frame/images/frame-bluetooth-connection-diagram.drawio.svg)
+![Bluetooth connection sequence diagram](images/frame-bluetooth-connection-diagram.drawio.svg)
 </details>
 
 ## Bluetooth Service & Characteristics
@@ -60,15 +48,15 @@ a = 1 + 2 -- Evaluates 1 + 2 and stores it in a, but does not return anything
 1 + 2 -- Returns an error because 1 + 2 hasn't been assigned to anything
 ```
 
-The length of TX data is limited to a maximum size of the host's chosen MTU length. This number also determines the maximum length of a Lua string that can be evaluated at a time. For larger scripts, they must first be saved to the device using the [file system API](/frame/frame-sdk-lua#file-system) using several `f:write()` operations, and then executed using `require()`.
+The length of TX data is limited to a maximum size of the host's chosen MTU length. This number also determines the maximum length of a Lua string that can be evaluated at a time. For larger scripts, they must first be saved to the device using the [file system API](https://docs.brilliant.xyz/frame/frame-sdk-lua/#file-system) using several `f:write()` operations, and then executed using `require()`.
 
 Responses are also limited to the MTU length. Should you want to return very long strings, they should be broken up into smaller `print()` statements.
 
-Common MTU lengths are from 27 to 251 bytes, depending on OS version, BT version, and more.  To determine the MTU length that applies to your connection, use the following Lua function on Frame: `frame.bluetooth.max_length()`.  More details in the [Lua Bluetooth API reference](/frame/frame-sdk-lua#bluetooth).  To determine the MTU length on the host side, consult the documentation for your bluetooth library.
+Common MTU lengths are from 27 to 251 bytes, depending on OS version, BT version, and more.  To determine the MTU length that applies to your connection, use the following Lua function on Frame: `frame.bluetooth.max_length()`.  More details in the [Lua Bluetooth API reference](https://docs.brilliant.xyz/frame/frame-sdk-lua/#bluetooth).  To determine the MTU length on the host side, consult the documentation for your bluetooth library.
 
 ### Bluetooth Lua Execution Sequence Diagram
 
-![Bluetooth Lua execution sequence diagram](/frame/images/frame-bluetooth-sending-lua-diagram.drawio.svg)
+![Bluetooth Lua execution sequence diagram](images/frame-bluetooth-sending-lua-diagram.drawio.svg)
 
 ## Sending Data
 
@@ -78,7 +66,7 @@ Raw byte data can also be returned to the host device using the `frame.bluetooth
 
 ### Bluetooth Raw Data Exchange Sequence Diagram
 
-![Bluetooth Raw Data Exchange Sequence Diagram](/frame/images/frame-bluetooth-sending-bytes-diagram.drawio.svg)
+![Bluetooth Raw Data Exchange Sequence Diagram](images/frame-bluetooth-sending-bytes-diagram.drawio.svg)
 
 ## Control Characters
 

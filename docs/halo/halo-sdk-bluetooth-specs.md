@@ -1,23 +1,11 @@
----
-title: Talking to Halo Over Bluetooth
-description: A reference on how to manually communicate with Halo over Bluetooth Low Energy
-image: /images/halo/halo-splash.png
-nav_order: 5
-parent: Brilliant SDK
-grand_parent: Halo
----
-
 # Talking to Halo Over Bluetooth
-{: .no_toc }
 
 ---
 
 You may want to communicate with Halo manually over Bluetooth Low Energy if we don't yet have an SDK available for your preferred development language, or if you want full control of what's going on under the hood.
 
-Once you're communicating with Halo over Bluetooth, you can use the [Lua API Reference](/halo/halo-sdk-lua) to see everything you can tell it to do.
+Once you're communicating with Halo over Bluetooth, you can use the [Lua API Reference](https://docs.brilliant.xyz/halo/halo-sdk-lua/) to see everything you can tell it to do.
 
-1. TOC
-{:toc}
 
 ---
 
@@ -41,7 +29,7 @@ Halo stores up to **5 bonded devices**. Out of the box (or after a factory reset
 
 ### Bluetooth Connection Diagram
 
-![Bluetooth connection sequence diagram](/halo/images/halo-bluetooth-connection-diagram.drawio.svg)
+![Bluetooth connection sequence diagram](images/halo-bluetooth-connection-diagram.drawio.svg)
 </details>
 
 ## Bluetooth Services & Characteristics
@@ -64,7 +52,6 @@ The maximum packet size on each characteristic is the negotiated MTU (up to 512 
 
 The service also exposes two further characteristics — `7A230004` (Notify) and `7A230006` (Notify) — which you will see when enumerating the service but which the firmware does not use.
 
-{: .note }
 Camera images and microphone audio are **not** streamed on dedicated characteristics. Camera image chunks are sent from Halo to host over the regular **LUA RX** characteristic using `frame.bluetooth.send()`. Microphone audio is also sent back on the **LUA RX** characteristic in the same way.
 
 ### Battery Service
@@ -90,7 +77,6 @@ Firmware updates use the **MCU-BOOT** scheme over BLE using the [Simple Manageme
 
 Halo is also a standard **LE Audio** device: a BAP Unicast Server with a speaker sink and a microphone source using the LC3 codec (8/16 kHz in both directions, with 32/48 kHz capture also available), plus volume control (VCS) and host-side microphone mute (MICS). Hosts with LE Audio support can stream audio to Halo's speaker and record from its microphone through these standard profiles, without using the custom characteristics at all.
 
-{: .note }
 An LE Audio stream established by the host takes priority over the custom channels. In particular, an active `frame.microphone` capture is preempted — `frame.microphone.status()` returns `"le_audio"` and `frame.microphone.start()` fails until the host releases the stream.
 
 ## Executing Lua Statements Over Bluetooth
@@ -112,7 +98,7 @@ To determine the MTU in use: `frame.bluetooth.max_length()` in Lua.
 
 ### Bluetooth Lua Execution Sequence
 
-![Bluetooth Lua execution sequence diagram](/halo/images/halo-bluetooth-sending-lua-diagram.drawio.svg)
+![Bluetooth Lua execution sequence diagram](images/halo-bluetooth-sending-lua-diagram.drawio.svg)
 
 ## Sending Data
 
@@ -122,7 +108,7 @@ Raw byte data can be returned to the host using `frame.bluetooth.send()`. It is 
 
 ### Bluetooth Raw Data Exchange Sequence
 
-![Bluetooth Raw Data Exchange Sequence Diagram](/halo/images/halo-bluetooth-sending-bytes-diagram.drawio.svg)
+![Bluetooth Raw Data Exchange Sequence Diagram](images/halo-bluetooth-sending-bytes-diagram.drawio.svg)
 
 ## Control Characters
 
@@ -149,7 +135,6 @@ While a Lua script is running, Halo will ignore additional Lua strings on LUA TX
 
 Lua loops can be interrupted with the break (`0x03`) and reset (`0x04`) control signals. When first connecting to Halo, it's good practice to send a break signal to ensure the device is in REPL mode before sending new application files.
 
-{: .note }
 If `main.lua` exists on the filesystem, it is automatically run after reboot or after a reset (`0x04`) signal. If it contains a main loop, send a break (`0x03`) signal after the reboot (with a short delay) to ensure further Lua REPL commands can execute.
 
 ## Camera

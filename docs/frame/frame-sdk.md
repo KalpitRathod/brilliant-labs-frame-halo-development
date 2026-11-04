@@ -1,25 +1,7 @@
----
-title: Frame SDK
-description: A guide on how to develop your own applications for Frame.
-image: /images/frame/frame-splash.png
-nav_order: 2
-parent: Frame
-has_children: true
-redirect_from:
-  - /frame/building-apps
-  - /frame/building-apps-sdk
-  - /frame/building-apps-lua
-  - /frame/building-apps-bluetooth-specs
-  - /frame/sdk
----
-
 # Building Apps with the Frame SDK
-{: .no_toc }
 
 ---
 
-1. TOC
-{:toc}
 
 ---
 
@@ -35,39 +17,38 @@ Frame doesn't have its own app launcher or traditional app installation system. 
 
 For the quickest start:
 
-* If you're using a supported platform, begin with our SDK documentation for [Python](/frame/frame-sdk-python) or [Flutter](/frame/frame-sdk-flutter), then explore the [Lua API](/frame/frame-sdk-lua) for advanced features.
-* For other platforms, use the [Lua API](/frame/frame-sdk-lua) directly over Bluetooth with the [Bluetooth LE API documentation](/frame/frame-sdk-bluetooth-specs).
-* The current SDK packages live in the [Brilliant SDK monorepo](https://github.com/brilliantlabsAR/brilliant_sdk){:target="_blank"} (`brilliant-ble` / `brilliant-msg` / `brilliant-sdk` on PyPI, pub.dev and npm) and support **both Frame and Halo**. The `frame-*` packages on the platform pages are their direct predecessors and still work.
-* Note: Legacy SDKs ([frame-sdk-python](https://pypi.org/project/frame-sdk/){:target="_blank"}, [frame-sdk-flutter](https://pub.dev/packages/frame_sdk){:target="_blank"}, [frameutils-python](https://pypi.org/project/frameutils/){:target="_blank"}) remain functional, but new projects should use the current SDK to access new features like image display and realtime streaming.
+* If you're using a supported platform, begin with our SDK documentation for [Python](https://docs.brilliant.xyz/frame/frame-sdk-python/) or [Flutter](https://docs.brilliant.xyz/frame/frame-sdk-flutter/), then explore the [Lua API](https://docs.brilliant.xyz/frame/frame-sdk-lua/) for advanced features.
+* For other platforms, use the [Lua API](https://docs.brilliant.xyz/frame/frame-sdk-lua/) directly over Bluetooth with the [Bluetooth LE API documentation](https://docs.brilliant.xyz/frame/frame-sdk-bluetooth-specs/).
+* The current SDK packages live in the [Brilliant SDK monorepo](https://github.com/brilliantlabsAR/brilliant_sdk) (`brilliant-ble` / `brilliant-msg` / `brilliant-sdk` on PyPI, pub.dev and npm) and support **both Frame and Halo**. The `frame-*` packages on the platform pages are their direct predecessors and still work.
+* Note: Legacy SDKs ([frame-sdk-python](https://pypi.org/project/frame-sdk/), [frame-sdk-flutter](https://pub.dev/packages/frame_sdk), [frameutils-python](https://pypi.org/project/frameutils/)) remain functional, but new projects should use the current SDK to access new features like image display and realtime streaming.
 
 # Development Options for Frame
 
 1. Use Platform SDKs **(Recommended)**
     * Build with supported platforms:
-        * [Python](/frame/frame-sdk-python) (Mac, Linux, Windows)
-        * [Flutter](/frame/frame-sdk-flutter) (iOS/Android)
+        * [Python](https://docs.brilliant.xyz/frame/frame-sdk-python/) (Mac, Linux, Windows)
+        * [Flutter](https://docs.brilliant.xyz/frame/frame-sdk-flutter/) (iOS/Android)
     * Benefits: Common tasks are simplified, many examples to follow
 2. Communicate via Bluetooth LE
     * Use any platform with Bluetooth LE capabilities
     * Offers full control but requires Bluetooth LE development experience
-    * See [Bluetooth LE API documentation](/frame/frame-sdk-bluetooth-specs)
+    * See [Bluetooth LE API documentation](https://docs.brilliant.xyz/frame/frame-sdk-bluetooth-specs/)
 3. Customize Firmware **(Advanced)**
     * Requires hardware development expertise
     * Provides complete control of Frame hardware
-    * See [firmware customization and hardware documentation](/frame/hardware#customizing-the-firmware)
+    * See [firmware customization and hardware documentation](https://docs.brilliant.xyz/frame/hardware/#customizing-the-firmware)
 
 The typical development pattern involves creating a Python desktop application or Flutter mobile app that uses the Frame SDK to communicate with Frame over Bluetooth, abstracting away many Lua and BTLE details.
 
 ## Platform SDK Development
 
-{: .note }
 This recommended approach offers quick and reliable Frame app development for Python and Flutter platforms, with each of these platform SDKs under active development.
 
 Our platform SDKs simplify the low-level Bluetooth and Lua APIs, eliminating the need to write boilerplate code for device discovery, connection, and communication.
 
-Familiarity with the [Lua API](/frame/frame-sdk-lua) remains useful for main application event loops, `main.lua` scripts that run at wakeup, or custom on-device processing.
+Familiarity with the [Lua API](https://docs.brilliant.xyz/frame/frame-sdk-lua/) remains useful for main application event loops, `main.lua` scripts that run at wakeup, or custom on-device processing.
 
-Check the [Python](/frame/frame-sdk-python) or [Flutter](/frame/frame-sdk-flutter) SDK documentation for implementation details.
+Check the [Python](https://docs.brilliant.xyz/frame/frame-sdk-python/) or [Flutter](https://docs.brilliant.xyz/frame/frame-sdk-flutter/) SDK documentation for implementation details.
 
 
 ## Direct Bluetooth LE Development
@@ -76,12 +57,12 @@ For developers comfortable with Bluetooth LE, this approach offers maximum flexi
 
 After establishing BTLE communication, you'll use Lua to control Frame's functions. Frame provides a Lua virtual machine where you can execute scripts or use the Lua REPL over the BTLE interface.
 
-Refer to the [Bluetooth LE API documentation](/frame/frame-sdk-bluetooth-specs) and the [full Lua API reference](/frame/frame-sdk-lua) for details on Frame's capabilities.
+Refer to the [Bluetooth LE API documentation](https://docs.brilliant.xyz/frame/frame-sdk-bluetooth-specs/) and the [full Lua API reference](https://docs.brilliant.xyz/frame/frame-sdk-lua/) for details on Frame's capabilities.
 
-During development, you can also use the [AR Studio extension for VSCode](/frame/frame-sdk-lua#ar-studio) to directly write and execute Lua code on Frame.
+During development, you can also use the [AR Studio extension for VSCode](https://docs.brilliant.xyz/frame/frame-sdk-lua/#ar-studio) to directly write and execute Lua code on Frame.
 
 ## Firmware Customization
 
 Frame is developed by hackers for hackers, so even though we don't recommend it for most users, Frame's open-source firmware can be customized.  Find the official firmware [on GitHub](https://github.com/brilliantlabsAR/frame-codebase).
 
-For more details on how to customize the firmware, see the [hardware documentation](/frame/hardware#customizing-the-firmware).
+For more details on how to customize the firmware, see the [hardware documentation](https://docs.brilliant.xyz/frame/hardware/#customizing-the-firmware).

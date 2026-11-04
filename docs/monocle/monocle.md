@@ -1,17 +1,8 @@
----
-title: Monocle
-description: Technical documentation for the Brilliant Monocle.
-image: /images/monocle/monocle-splash.png
-nav_order: 4
-has_children: true
----
-
-
-![Brilliant Monocle use cases](/monocle/images/monocle-splash.png)
+![Brilliant Monocle use cases](images/monocle-splash.png)
 
 # Technical Documentation
 
-Monocle was designed for hackers, by hackers. Take a moment to familiarize yourself with the [Monocle hardware](/monocle/hardware), and when you're ready to delve deeper, visit the [Building Apps](/building-apps) section to discover how you can construct your own augmented reality apps.
+Monocle was designed for hackers, by hackers. Take a moment to familiarize yourself with the [Monocle hardware](https://docs.brilliant.xyz/monocle/hardware/), and when you're ready to delve deeper, visit the [Building Apps](https://docs.brilliant.xyz/monocle/building-apps/) section to discover how you can construct your own augmented reality apps.
 
 ### How do I start my Monocle?
 
@@ -19,7 +10,7 @@ As soon as you remove Monocle from its case, it will automatically power on. You
 
 ### How do I program my Monocle?
 
-Monocle understands Python and offers a convenient set of APIs to control the display, camera, touch, and microphone. By leveraging Brilliant's [AR Studio for VSCode](https://marketplace.visualstudio.com/items?itemName=brilliantlabs.brilliant-ar-studio), you can create Python applications and effortlessly test them on Monocle. To get started, explore the helpful examples in our [reference documentation](/monocle/micropython). Alternatively, you can browse the [community projects page](/community) to discover what others have built with Monocle.
+Monocle understands Python and offers a convenient set of APIs to control the display, camera, touch, and microphone. By leveraging Brilliant's [AR Studio for VSCode](https://marketplace.visualstudio.com/items?itemName=brilliantlabs.brilliant-ar-studio), you can create Python applications and effortlessly test them on Monocle. To get started, explore the helpful examples in our [reference documentation](https://docs.brilliant.xyz/monocle/micropython/). Alternatively, you can browse the [community projects page](https://docs.brilliant.xyz/community/) to discover what others have built with Monocle.
 
 ### How do I update my Monocle?
 

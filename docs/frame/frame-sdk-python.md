@@ -1,34 +1,19 @@
----
-title: Python
-description: An overview of the Frame SDK for building Python apps that talk to Frame AR glasses.
-image: /images/frame/frame-splash.png
-nav_order: 1
-parent: Frame SDK
-grand_parent: Frame
-nav_enabled: true
-
----
-
 # Frame SDK for Python
-{: .no_toc }
 
 ---
 
-The `frame-*` packages documented on this page still work, but active development has moved to their renamed successors in the [Brilliant SDK monorepo](https://github.com/brilliantlabsAR/brilliant_sdk){:target="_blank"}: [brilliant-ble](https://pypi.org/project/brilliant-ble/){:target="_blank"} and [brilliant-msg](https://pypi.org/project/brilliant-msg/){:target="_blank"} support **both Frame and Halo** with the same API (see the [migration guide](https://github.com/brilliantlabsAR/brilliant_sdk/blob/main/python/MIGRATION.md){:target="_blank"}). New projects should start there — the [Halo Python SDK page](/halo/halo-sdk-python) documents the current packages.
-{: .note }
+The `frame-*` packages documented on this page still work, but active development has moved to their renamed successors in the [Brilliant SDK monorepo](https://github.com/brilliantlabsAR/brilliant_sdk): [brilliant-ble](https://pypi.org/project/brilliant-ble/) and [brilliant-msg](https://pypi.org/project/brilliant-msg/) support **both Frame and Halo** with the same API (see the [migration guide](https://github.com/brilliantlabsAR/brilliant_sdk/blob/main/python/MIGRATION.md)). New projects should start there — the [Halo Python SDK page](https://docs.brilliant.xyz/halo/halo-sdk-python/) documents the current packages.
 
 The Frame SDK for Python is available in a low-level library ([frame-ble](https://pypi.org/project/frame-ble/)) for Bluetooth LE connectivity using [Bleak](https://github.com/hbldh/bleak) with a limited Lua REPL, and an application-level library ([frame-msg](https://pypi.org/project/frame-msg/)) for passing rich objects between your host program and Frame, such as images, streamed audio, IMU data and rasterized text.
 
 ---
 
-1. TOC
-{:toc}
 
 ---
 
 ## `frame-ble` package: low-level connectivity
 
-| [![Available on PyPI](https://img.shields.io/pypi/v/frame-ble)](https://pypi.org/project/frame-ble/){:target="_blank"} | [API Reference](https://frame-ble-python.readthedocs.io/){:target="_blank"} | [Source](https://github.com/CitizenOneX/frame_ble_python){:target="_blank"} | [Examples](https://github.com/CitizenOneX/frame_examples_python/tree/main/frame_ble){:target="_blank"} |
+| [![Available on PyPI](https://img.shields.io/pypi/v/frame-ble)](https://pypi.org/project/frame-ble/) | [API Reference](https://frame-ble-python.readthedocs.io/) | [Source](https://github.com/CitizenOneX/frame_ble_python) | [Examples](https://github.com/CitizenOneX/frame_examples_python/tree/main/frame_ble) |
 
 The `FrameBle` class allows a host to connect to Frame, initiating pairing if required. A sequence of Lua strings can be sent to Frame for execution, optionally returning their results as strings. Transmitted and received strings must be shorter than the Bluetooth MTU (`FrameBle.max_lua_payload()`).
 
@@ -36,14 +21,13 @@ The `FrameBle` class allows a host to connect to Frame, initiating pairing if re
 
 In addition to Lua strings, `FrameBle` can also send control commands (break and reset), as well as custom user data messages that can be handled by a user-defined data handler function on Frame. See [Talking to Frame Over Bluetooth](frame-sdk-bluetooth-specs.md) for more details.
 
-Consult the [API Reference](https://frame-ble-python.readthedocs.io/){:target="_blank"} for the complete list of functions available in `frame-ble`, and the [Examples repo](https://github.com/CitizenOneX/frame_examples_python/tree/main/frame_ble){:target="_blank"} to see them in action. Don't see an example you need? Ask in [Discord](https://discord.com/invite/vDS9X7gdwg){:target="_blank"} to have one added.
+Consult the [API Reference](https://frame-ble-python.readthedocs.io/) for the complete list of functions available in `frame-ble`, and the [Examples repo](https://github.com/CitizenOneX/frame_examples_python/tree/main/frame_ble) to see them in action. Don't see an example you need? Ask in [Discord](https://discord.com/invite/vDS9X7gdwg) to have one added.
 
 Note: It is expected that most application developers will prefer to use `FrameMsg` from the [frame-msg package](https://pypi.org/project/frame-msg/) to make use of first-class messages and efficient transport for sprites, images, audio clips, and to avoid having to wrangle Bluetooth packet fragmentation and assembly. The `frame-ble` package, with only a dependency on the `bleak` library, is still a handy choice for `"Hello, World!"`, simple utilities, or as the basis of a custom application framework in Python.
 
 <iframe width="720" height="405" src="https://www.youtube.com/embed/D4E8uAyt9CI" frameborder="0" allowfullscreen> </iframe>
 
 ### Example usage
-{: .no_toc }
 ```bash
 pip install frame-ble
 ```
@@ -72,17 +56,17 @@ if __name__ == "__main__":
 
 | Selected Examples |
 |-------------------|
-| ["Hello, World!"](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_ble/hello_world.py){:target="_blank"} |
-| [Clear the display](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_ble/clear_display.py){:target="_blank"} |
-| [Echo printed outputs from Lua code executing on Frame](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_ble/echo.py){:target="_blank"} |
-| [Upload and invoke a custom Lua function from a file](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_ble/custom_lua_functions.py){:target="_blank"} |
-| [Upload and invoke a function demonstrating lz4 decompression on Frame](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_ble/decompression.py){:target="_blank"} |
+| ["Hello, World!"](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_ble/hello_world.py) |
+| [Clear the display](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_ble/clear_display.py) |
+| [Echo printed outputs from Lua code executing on Frame](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_ble/echo.py) |
+| [Upload and invoke a custom Lua function from a file](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_ble/custom_lua_functions.py) |
+| [Upload and invoke a function demonstrating lz4 decompression on Frame](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_ble/decompression.py) |
 
 ---
 
 ## `frame-msg` package: application-level messaging
 
-| [![Available on PyPI](https://img.shields.io/pypi/v/frame-msg)](https://pypi.org/project/frame-msg/){:target="_blank"} | [API Reference](https://frame-msg-python.readthedocs.io/){:target="_blank"} | [Source](https://github.com/CitizenOneX/frame_msg_python){:target="_blank"} | [Examples](https://github.com/CitizenOneX/frame_examples_python/tree/main/frame_msg){:target="_blank"} |
+| [![Available on PyPI](https://img.shields.io/pypi/v/frame-msg)](https://pypi.org/project/frame-msg/) | [API Reference](https://frame-msg-python.readthedocs.io/) | [Source](https://github.com/CitizenOneX/frame_msg_python) | [Examples](https://github.com/CitizenOneX/frame_examples_python/tree/main/frame_msg) |
 
 `frame-msg` enables both the hostside and Frameside halves of an application to **communicate using richly typed messages** - for example transmitting Sprites to Frame with width, height, palette data and pixel data attributes. (See the code below for an example.)
 
@@ -91,7 +75,6 @@ Additionally, `frame-msg` uses a programming model in which **a main event loop 
 <iframe width="720" height="405" src="https://www.youtube.com/embed/E49wf4caHKQ" frameborder="0" allowfullscreen> </iframe>
 
 ### How it works
-{: .no_toc }
 
 In order to **serialize and deserialize large objects**, `frame-msg` makes use of `FrameBle`'s `send_message()` function that **fragments large payloads** into multiple Bluetooth packets marked with a matching **`msg_code`**, and **efficiently reassembles them on Frame**. After parsing the reconstructed payload into the desired type, a complete object is made available for the application's main loop in Lua.
 
@@ -104,7 +87,6 @@ Handling **rich message types** is done by providing symmetrical **packing code 
 This approach presents a natural extension point for user-defined types too: a custom application-specific message might contain an icon, a heading and some detailed text - and this can all be sent together and used all at once on Frame to update the display. By implementing the packing and parsing code for user-defined types, custom objects can be used in applications in the same way as the standard types.
 
 ### Startup sequence
-{: .no_toc }
 
 `frame-msg` applications tend to follow a startup sequence that ensures Frame is in a known state for the application to run, namely:
 * Optionally send a break/reset/break signal sequence to ensure that Frame is in Lua REPL mode and its memory is freshly cleared
@@ -117,7 +99,6 @@ After the Frameside application reports that it has started, the hostside and Fr
 <iframe width="720" height="405" src="https://www.youtube.com/embed/y5kUzPKrFpk" frameborder="0" allowfullscreen> </iframe>
 
 ## Example usage
-{: .no_toc }
 ```bash
 pip install frame-msg
 ```
@@ -251,12 +232,12 @@ app_loop()
 
 | Selected Examples | Python | Lua |
 |-------------------|--------|-----|
-| Display a Sprite  | [Python](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_msg/sprite_ind_png.py){:target="_blank"} | [Lua](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_msg/lua/sprite_frame_app.lua){:target="_blank"} |
-| Display Unicode Text  | [Python](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_msg/text_sprite_block.py){:target="_blank"} | [Lua](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_msg/lua/text_sprite_block_frame_app.lua){:target="_blank"} |
-| Take a photo (auto exposure)  | [Python](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_msg/camera.py){:target="_blank"} | [Lua](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_msg/lua/camera_frame_app.lua){:target="_blank"} |
-| Take a photo (manual exposure)  | [Python](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_msg/manual_exposure.py){:target="_blank"} | [Lua](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_msg/lua/manualexp_frame_app.lua){:target="_blank"} |
-| Live camera feed  | [Python](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_msg/live-camera-feed-with-params.py){:target="_blank"} | [Lua](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_msg/lua/live_camera_frame_app.lua){:target="_blank"} |
-| Stream audio  | [Python](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_msg/audio_stream.py){:target="_blank"} | [Lua](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_msg/lua/audio_frame_app.lua){:target="_blank"} |
+| Display a Sprite  | [Python](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_msg/sprite_ind_png.py) | [Lua](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_msg/lua/sprite_frame_app.lua) |
+| Display Unicode Text  | [Python](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_msg/text_sprite_block.py) | [Lua](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_msg/lua/text_sprite_block_frame_app.lua) |
+| Take a photo (auto exposure)  | [Python](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_msg/camera.py) | [Lua](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_msg/lua/camera_frame_app.lua) |
+| Take a photo (manual exposure)  | [Python](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_msg/manual_exposure.py) | [Lua](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_msg/lua/manualexp_frame_app.lua) |
+| Live camera feed  | [Python](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_msg/live-camera-feed-with-params.py) | [Lua](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_msg/lua/live_camera_frame_app.lua) |
+| Stream audio  | [Python](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_msg/audio_stream.py) | [Lua](https://github.com/CitizenOneX/frame_examples_python/blob/main/frame_msg/lua/audio_frame_app.lua) |
 
 ---
 

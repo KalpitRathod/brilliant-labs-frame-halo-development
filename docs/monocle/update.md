@@ -1,19 +1,8 @@
----
-title: Firmware Updates
-description: A guide on how to update your Monocle AR device.
-image: /images/monocle/monocle-splash.png
-nav_order: 4
-parent: Monocle
-redirect_from:
-  - /monocle/update
----
-
 # Updating your Monocle Firmware
-{: .no_toc }
 
 ---
 
-If you're using the [Brilliant AR Studio](/monocle/building-apps/#getting-started-with-ar-studio-for-vscode), firmware updates are automatic, and you will be prompted whenever a new update is available.
+If you're using the [Brilliant AR Studio](https://docs.brilliant.xyz/monocle/building-apps/#getting-started-with-ar-studio-for-vscode), firmware updates are automatic, and you will be prompted whenever a new update is available.
 
 If you run into problems, you can update manually using the following steps:
 

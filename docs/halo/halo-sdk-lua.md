@@ -1,25 +1,14 @@
----
-title: Lua API Reference
-description: A reference of Lua functionality available on your Brilliant Halo.
-image: /images/halo/halo-splash.png
-nav_order: 4
-parent: Brilliant SDK
-grand_parent: Halo
----
-
 # Lua API
-{: .no_toc }
 
 ---
 
 Lua is a tiny and extensible scripting language that's designed to be power efficient and quick to learn. Halo features a Lua virtual machine based on Lua 5.4, with dedicated hardware APIs that allow direct access to all of Halo's peripherals.
 
-{: .note }
 The Lua virtual machine on Halo has a subset of the standard library. Lua's standard `io` and `os` libraries are not present. The global `require()` function loads modules from the device filesystem with standard Lua semantics: `require("myapp")` runs `/myapp.lua`, caches the result in `package.loaded`, and returns the module's return value.\
 \
 On power-on and after a restart, if `/main.lua` is present, it is automatically `require`d (executed).
 
-There's no special cables or setup needed. Lua on Halo is accessed solely over Bluetooth, such that any user-created host app can easily execute scripts by pushing Lua strings to the device. To learn more about how the underlying Bluetooth communication with Halo works, check out the [Talking to Halo Over Bluetooth](/halo/halo-sdk-bluetooth-specs) page.
+There's no special cables or setup needed. Lua on Halo is accessed solely over Bluetooth, such that any user-created host app can easily execute scripts by pushing Lua strings to the device. To learn more about how the underlying Bluetooth communication with Halo works, check out the [Talking to Halo Over Bluetooth](https://docs.brilliant.xyz/halo/halo-sdk-bluetooth-specs/) page.
 
 ### Key differences from Frame
 
@@ -38,8 +27,6 @@ There's no special cables or setup needed. Lua on Halo is accessed solely over B
 
 ---
 
-1. TOC
-{:toc}
 
 ---
 
@@ -183,7 +170,6 @@ Button event callbacks for single click, double click, and long press.
 
 The long-press callback fires when the button is held for 1 second and released before the 2-second power-off threshold.
 
-{: .note }
 Longer holds are reserved for system behaviors: at **2 s** a short beep marks the power-off threshold — releasing then powers Halo down into deep sleep. Holding through the beep to **5 s** opens the Bluetooth pairing window, marked by a coin chime. Holding to **15 s** enters ship mode (factory reset and full shutdown).
 
 ```lua
@@ -207,7 +193,7 @@ frame.button.single(nil)
 
 ## Bluetooth
 
-APIs for sending and receiving raw byte data over Bluetooth. For a full description of how this works, see [Talking to Halo Over Bluetooth](/halo/halo-sdk-bluetooth-specs).
+APIs for sending and receiving raw byte data over Bluetooth. For a full description of how this works, see [Talking to Halo Over Bluetooth](https://docs.brilliant.xyz/halo/halo-sdk-bluetooth-specs/).
 
 Halo bonds with up to 5 hosts. Pairing an additional host is done through the pairing window, opened with a 5-second button hold (see [Button](#button)).
 
@@ -432,7 +418,6 @@ Calling `start()` while already running stops and restarts the speaker with the 
 
 **Loudness (`gain` and `budget`).** Both settings apply to the one stream being started and reset when the speaker is next started — they are not persisted like `volume`. `gain` boosts the signal *into* the speaker protection chain: a quiet source (for example un-normalized text-to-speech) is lifted toward the loudness ceiling, while an already-hot source is compressed by the limiter instead of getting louder, so the best results come from normalizing audio on the host and using `gain` for the remainder. `budget` raises (or lowers) the ceiling itself — the energy budget the speaker protection enforces — at the cost of higher peak battery current; values above the firmware's configured maximum are clamped. All speaker protection stays active regardless of these settings.
 
-{: .note }
 While the display is active, the firmware automatically reduces the speaker energy budget and restores it when the display returns to power save — so audio plays loudest while the display is asleep. The transition is ramped smoothly, even mid-stream.
 
 ```lua
@@ -600,7 +585,6 @@ end, 75, 2000)  -- 75 dB threshold, 2 second silent period
 
 Display APIs for drawing text, bitmaps, and vector graphics on Halo's 256×256 circular screen.
 
-{: .note }
 Unlike Frame, Halo's display has no double-buffer. Draw calls take effect immediately — there is no `show()` call required (calling it has no effect).
 
 All draw coordinates are in the range 1–256; values below 1 are clamped to 1.
@@ -710,7 +694,7 @@ frame.display.bitmap(100, 100, 32, 2, 0, pixels)
 
 ## Camera
 
-Camera capture APIs. Halo's camera captures images in JPEG format. Only 640px resolution is supported. Camera images are read in Lua and sent to the host over the regular data channel using `frame.bluetooth.send()` (see [Bluetooth specs](/halo/halo-sdk-bluetooth-specs)).
+Camera capture APIs. Halo's camera captures images in JPEG format. Only 640px resolution is supported. Camera images are read in Lua and sent to the host over the regular data channel using `frame.bluetooth.send()` (see [Bluetooth specs](https://docs.brilliant.xyz/halo/halo-sdk-bluetooth-specs/)).
 
 | API | Description |
 |:----|:------------|
@@ -752,7 +736,6 @@ frame.camera.power_save(true)
 
 Halo integrates [libmpix](https://libmpix.org/), an image signal processing library that gives Lua scripts direct control over the camera pipeline. Instead of receiving a fixed JPEG, you can compose a pipeline of operations — debayering, colour correction, denoise, resize, format conversion — before the image is encoded.
 
-{: .note }
 `frame.camera.mpix` is a Halo-only API. It has no equivalent on Frame.
 
 The firmware automatically computes per-frame statistics (luminance histogram, per-channel averages) and uses them for auto black-level and auto white-balance. These auto values are applied through the pipeline's `correct_black_level` and `correct_white_balance` operations. The default pipeline (used if you don't call `set_pipeline`) is:

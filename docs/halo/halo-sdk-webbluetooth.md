@@ -1,15 +1,4 @@
----
-title: Web Bluetooth
-description: An overview of the Brilliant SDK for building browser-based TypeScript/JavaScript apps that talk to Brilliant Halo.
-image: /images/halo/halo-splash.png
-nav_order: 3
-parent: Brilliant SDK
-grand_parent: Halo
-nav_enabled: true
----
-
 # Brilliant SDK for Web Bluetooth
-{: .no_toc }
 
 ---
 
@@ -18,19 +7,16 @@ The Brilliant SDK for Web Bluetooth is a TypeScript/JavaScript SDK for building 
 - **[brilliant-ble](https://www.npmjs.com/package/brilliant-ble)** — low-level [Web Bluetooth API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API) interface
 - **[brilliant-msg](https://www.npmjs.com/package/brilliant-msg)** — application-level message types (sprites, text, audio, IMU, photos, clicks)
 
-{: .warning }
 Web Bluetooth is only available in Chromium-based browsers (Chrome, Edge, Opera) on desktop and Android. It is **not** available in Firefox or Safari.
 
 ---
 
-1. TOC
-{:toc}
 
 ---
 
 ## `brilliant-ble` package: low-level connectivity
 
-| [npm](https://www.npmjs.com/package/brilliant-ble){:target="_blank"} | [API Reference](https://brilliantlabsar.github.io/brilliant_sdk/brilliant-ble/api/){:target="_blank"} | [Source](https://github.com/brilliantlabsAR/brilliant_sdk/tree/main/webbluetooth/packages/brilliant-ble){:target="_blank"} |
+| [npm](https://www.npmjs.com/package/brilliant-ble) | [API Reference](https://brilliantlabsar.github.io/brilliant_sdk/brilliant-ble/api/) | [Source](https://github.com/brilliantlabsAR/brilliant_sdk/tree/main/webbluetooth/packages/brilliant-ble) |
 
 The `BrilliantBle` class connects to Halo (or Frame) via the browser's Web Bluetooth API. Device type is detected automatically at connection time.
 
@@ -41,7 +27,6 @@ The `BrilliantBle` class connects to Halo (or Frame) via the browser's Web Bluet
 - `sendData()` / `sendMessage()` — new `awaitBtResponse` option for write-with/without-response
 
 ### Installation
-{: .no_toc }
 
 ```bash
 npm install brilliant-ble
@@ -56,7 +41,6 @@ Or import from a CDN in your HTML:
 ```
 
 ### Example usage
-{: .no_toc }
 
 ```typescript
 import { BrilliantBle, BrilliantDeviceType } from 'brilliant-ble';
@@ -81,7 +65,7 @@ await frame.disconnect();
 
 ## `brilliant-msg` package: application-level messaging
 
-| [npm](https://www.npmjs.com/package/brilliant-msg){:target="_blank"} | [API Reference](https://brilliantlabsar.github.io/brilliant_sdk/brilliant-msg/api/){:target="_blank"} | [Source](https://github.com/brilliantlabsAR/brilliant_sdk/tree/main/webbluetooth/packages/brilliant-msg){:target="_blank"} |
+| [npm](https://www.npmjs.com/package/brilliant-msg) | [API Reference](https://brilliantlabsar.github.io/brilliant_sdk/brilliant-msg/api/) | [Source](https://github.com/brilliantlabsAR/brilliant_sdk/tree/main/webbluetooth/packages/brilliant-msg) |
 
 `brilliant-msg` enables the host and Haloside halves of an application to **communicate using richly typed messages**.
 
@@ -99,14 +83,12 @@ await frame.disconnect();
 - `TxTextSpriteBlock` — updated `lineHeight` header format
 
 ### Installation
-{: .no_toc }
 
 ```bash
 npm install brilliant-ble brilliant-msg
 ```
 
 ### Example usage
-{: .no_toc }
 
 ```typescript
 import { BrilliantBle } from 'brilliant-ble';
@@ -190,7 +172,6 @@ app_loop()
 ```
 
 ### Circular text layout for Halo's round display
-{: .no_toc }
 
 Use `CircularTextLayout` to constrain multi-line text within Halo's circular 256×256 display:
 

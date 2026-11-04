@@ -1,12 +1,4 @@
----
-title: Frame
-description: Technical documentation for the Brilliant Frame.
-image: /images/frame/frame-splash.png
-nav_order: 3
-has_children: true
----
-
-![Brilliant Frame](/frame/images/frame-splash.png)
+![Brilliant Frame](images/frame-splash.png)
 
 # Getting started with Frame
 
@@ -20,19 +12,19 @@ The charging cradle provides an extra helping of battery power for when you're o
 
 The cradle and Frame when docked together will take around 2 hours to fully charge. The white LED on the cradle will turn off to indicate that charging is complete.
 
-![Charging Frame](/frame/images/frame-charging-diagram.png)
+![Charging Frame](images/frame-charging-diagram.png)
 
 ## How do I set the bridge height?
 
 Choosing the correct nose bridge adaptor is key to seeing the full display area. You can choose between 3mm, 2mm or no nose bridge adaptor to set the correct level.
 
-![Frame nose bridge height](/frame/images/frame-nose-bridge-diagram.png)
+![Frame nose bridge height](images/frame-nose-bridge-diagram.png)
 
 ## How do I connect to my Frame for the first time?
 
 Ensure your Frame is charged, and then with the charging cradle connected, use a sim card tool and hold the pairing button for 3 seconds. Then remove the dock, and from any Frame compatible app, such as Noa, press connect, and then tap pair.
 
-![Pairing Frame to Noa](/frame/images/frame-pairing-diagram.png)
+![Pairing Frame to Noa](images/frame-pairing-diagram.png)
 
 ## How do I update my Frame?
 

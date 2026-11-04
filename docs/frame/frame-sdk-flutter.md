@@ -1,21 +1,8 @@
----
-title: Flutter
-description: An overview of the Frame SDK for building Flutter mobile apps that talk to Frame AR glasses.
-image: /images/frame/frame-splash.png
-nav_order: 2
-parent: Frame SDK
-grand_parent: Frame
-nav_enabled: true
-
----
-
 # Frame SDK for Flutter
-{: .no_toc }
 
 ---
 
-The `frame-*` packages documented on this page still work, but active development has moved to their renamed successors in the [Brilliant SDK monorepo](https://github.com/brilliantlabsAR/brilliant_sdk){:target="_blank"}: [brilliant_ble](https://pub.dev/packages/brilliant_ble){:target="_blank"}, [brilliant_msg](https://pub.dev/packages/brilliant_msg){:target="_blank"} and [simple_brilliant_app](https://pub.dev/packages/simple_brilliant_app){:target="_blank"} support **both Frame and Halo** with the same API (see the [migration guide](https://github.com/brilliantlabsAR/brilliant_sdk/blob/main/flutter/MIGRATION.md){:target="_blank"}). New projects should start there — the [Halo Flutter SDK page](/halo/halo-sdk-flutter) documents the current packages.
-{: .note }
+The `frame-*` packages documented on this page still work, but active development has moved to their renamed successors in the [Brilliant SDK monorepo](https://github.com/brilliantlabsAR/brilliant_sdk): [brilliant_ble](https://pub.dev/packages/brilliant_ble), [brilliant_msg](https://pub.dev/packages/brilliant_msg) and [simple_brilliant_app](https://pub.dev/packages/simple_brilliant_app) support **both Frame and Halo** with the same API (see the [migration guide](https://github.com/brilliantlabsAR/brilliant_sdk/blob/main/flutter/MIGRATION.md)). New projects should start there — the [Halo Flutter SDK page](https://docs.brilliant.xyz/halo/halo-sdk-flutter/) documents the current packages.
 
 The Frame SDK for Flutter is available in a low-level library ([frame_ble](https://pub.dev/packages/frame_ble/)) for Bluetooth LE connectivity using [Flutter Blue Plus](https://pub.dev/packages/flutter_blue_plus) with a limited Lua REPL, and an application-level library ([frame_msg](https://pub.dev/packages/frame_msg/)) for passing rich objects between your host program and Frame, such as images, streamed audio, IMU data and rasterized text.
 
@@ -23,14 +10,12 @@ Additionally for Flutter developers the community has contributed even higher-le
 
 ---
 
-1. TOC
-{:toc}
 
 ---
 
 ## `frame_ble` package: low-level connectivity
 
-| [![Available on pub.dev](https://img.shields.io/pub/v/frame_ble)](https://pub.dev/packages/frame_ble){:target="_blank"} | [API Reference](https://pub.dev/documentation/frame_ble/latest/){:target="_blank"} | [Source](https://github.com/CitizenOneX/frame_ble){:target="_blank"} | [Example](https://github.com/CitizenOneX/frame_ble/tree/main/example){:target="_blank"} |
+| [![Available on pub.dev](https://img.shields.io/pub/v/frame_ble)](https://pub.dev/packages/frame_ble) | [API Reference](https://pub.dev/documentation/frame_ble/latest/) | [Source](https://github.com/CitizenOneX/frame_ble) | [Example](https://github.com/CitizenOneX/frame_ble/tree/main/example) |
 
 The `BrilliantBluetooth` class allows a host to connect to Frame, initiating pairing if required. A sequence of Lua strings can be sent to Frame for execution, optionally returning their results as strings. Transmitted and received strings must be shorter than the Bluetooth MTU (`BrilliantDevice.maxStringLength()`).
 
@@ -38,14 +23,13 @@ The `BrilliantBluetooth` class allows a host to connect to Frame, initiating pai
 
 In addition to Lua strings, `BrilliantDevice` can also send control commands (break and reset), as well as custom user data messages that can be handled by a user-defined data handler function on Frame. See [Talking to Frame Over Bluetooth](frame-sdk-bluetooth-specs.md) for more details.
 
-Consult the [API Reference](https://pub.dev/documentation/frame_ble/latest/){:target="_blank"} for the complete list of functions available in `frame_ble`, and the [Example](https://github.com/CitizenOneX/frame_ble/blob/main/example/lib/main.dart){:target="_blank"} to see them in action. Don't see an example you need? Ask in [Discord](https://discord.com/invite/vDS9X7gdwg){:target="_blank"} to have one added.
+Consult the [API Reference](https://pub.dev/documentation/frame_ble/latest/) for the complete list of functions available in `frame_ble`, and the [Example](https://github.com/CitizenOneX/frame_ble/blob/main/example/lib/main.dart) to see them in action. Don't see an example you need? Ask in [Discord](https://discord.com/invite/vDS9X7gdwg) to have one added.
 
 Note: It is expected that most application developers will prefer to use the [frame_msg package](https://pub.dev/packages/frame_msg) to make use of first-class messages and efficient transport for sprites, images, audio clips, and to avoid having to wrangle Bluetooth packet fragmentation and assembly. The `frame_ble` package, with only a dependency on the `flutter_blue_plus` library, is still a handy choice for `"Hello, World!"`, simple utilities, or as the basis of a custom application framework in Flutter.
 
 Note: Frame SDK for Flutter is under active development and it is expected that some `frame_ble` classes may change to harmonize with the Python SDK naming, while retaining some differences due to the mobile context.
 
 ### Example usage
-{: .no_toc }
 ```dart
   // ...
   Future<void> _showCounterOnFrame() async {
@@ -101,20 +85,19 @@ Note: Frame SDK for Flutter is under active development and it is expected that 
 
 | Selected Examples |
 |-------------------|
-| ["Hello, World!"](https://github.com/CitizenOneX/frame_ble/blob/main/example/lib/main.dart){:target="_blank"} |
+| ["Hello, World!"](https://github.com/CitizenOneX/frame_ble/blob/main/example/lib/main.dart) |
 
 ---
 
 ## `frame_msg` package: application-level messaging
 
-| [![Available on pub.dev](https://img.shields.io/pub/v/frame_msg)](https://pub.dev/packages/frame_msg){:target="_blank"} | [API Reference](https://pub.dev/documentation/frame_msg/latest/){:target="_blank"} | [Source](https://github.com/CitizenOneX/frame_msg){:target="_blank"} | Example |
+| [![Available on pub.dev](https://img.shields.io/pub/v/frame_msg)](https://pub.dev/packages/frame_msg) | [API Reference](https://pub.dev/documentation/frame_msg/latest/) | [Source](https://github.com/CitizenOneX/frame_msg) | Example |
 
 `frame-msg` enables both the hostside and Frameside halves of an application to **communicate using richly typed messages** - for example transmitting Sprites to Frame with width, height, palette data and pixel data attributes. (See the code below for an example.)
 
 Additionally, `frame-msg` uses a programming model in which **a main event loop is running on Frame**. As a result, messages are exchanged asychronously and handled in an event-driven way. This is in contrast to the "Lua REPL" model, in which single statements are sent to Frame to be executed, and the host attempts to block until execution has completed. In a REPL-style model, it would not be practical to create an application that for example continuously streams audio from Frame to host, and simultaneously sends text back for display (a live translation app). In contrast, with a main event loop running on Frame it is possible to send some audio back to the host if some is available, and check for messages indicating text is ready for display, then loop around again.
 
 ### How it works
-{: .no_toc }
 
 In order to **serialize and deserialize large objects**, use `frame_ble`'s `BrilliantDevice.send_message()` function that **fragments large payloads** into multiple Bluetooth packets marked with a matching **`msg_code`**, and **efficiently reassembles them on Frame**. After parsing the reconstructed payload into the desired type, a complete object is made available for the application's main loop in Lua.
 
@@ -127,7 +110,6 @@ Handling **rich message types** is done by providing symmetrical **packing code 
 This approach presents a natural extension point for user-defined types too: a custom application-specific message might contain an icon, a heading and some detailed text - and this can all be sent together and used all at once on Frame to update the display. By implementing the packing and parsing code for user-defined types, custom objects can be used in applications in the same way as the standard types.
 
 ### Startup sequence
-{: .no_toc }
 
 `frame-msg` applications tend to follow a startup sequence that ensures Frame is in a known state for the application to run, namely:
 * Optionally send a break/reset/break signal sequence to ensure that Frame is in Lua REPL mode and its memory is freshly cleared
@@ -139,7 +121,6 @@ After the Frameside application reports that it has started, the hostside and Fr
 
 
 ## Example usage
-{: .no_toc }
 `sprite_display.dart`
 ```dart
   // ...
@@ -231,7 +212,7 @@ app_loop()
 
 | Selected Examples | Flutter | Lua |
 |-------------------|---------|-----|
-| Display a Sprite (`simple_frame_app` example)  | [Flutter](https://github.com/CitizenOneX/frame_sprite_viewer/blob/main/lib/main.dart){:target="_blank"} | [Lua](https://github.com/CitizenOneX/frame_sprite_viewer/blob/main/assets/frame_app.lua){:target="_blank"} |
+| Display a Sprite (`simple_frame_app` example)  | [Flutter](https://github.com/CitizenOneX/frame_sprite_viewer/blob/main/lib/main.dart) | [Lua](https://github.com/CitizenOneX/frame_sprite_viewer/blob/main/assets/frame_app.lua) |
 
 ---
 
@@ -240,33 +221,33 @@ app_loop()
 In addition to `frame-msg` and `frame-ble`, the Frame developer community has provided some even higher-level scaffolding for creating demo apps and to experiment with ideas quickly, but are not recommended for production apps:
 
 ### Simple Frame App
-| [![Available on pub.dev](https://img.shields.io/pub/v/simple_frame_app)](https://pub.dev/packages/simple_frame_app){:target="_blank"} | [API Reference](https://pub.dev/documentation/simple_frame_app/latest/){:target="_blank"} | [Source](https://github.com/CitizenOneX/simple_frame_app){:target="_blank"} |
+| [![Available on pub.dev](https://img.shields.io/pub/v/simple_frame_app)](https://pub.dev/packages/simple_frame_app) | [API Reference](https://pub.dev/documentation/simple_frame_app/latest/) | [Source](https://github.com/CitizenOneX/simple_frame_app) |
 
 Quickstart scaffolding for a single-page mobile application that handles basic connection to Frame and loading of Frameside application resources including Lua files and sprites.
 
 | Selected Examples | Flutter | Lua |
 |-------------------|---------|-----|
-| [Display a Sprite](https://github.com/CitizenOneX/frame_sprite_viewer){:target="_blank"} | [Flutter](https://github.com/CitizenOneX/frame_sprite_viewer/blob/main/lib/main.dart){:target="_blank"} | [Lua](https://github.com/CitizenOneX/frame_sprite_viewer/blob/main/assets/frame_app.lua){:target="_blank"} |
-| [Wikipedia Viewer](https://github.com/CitizenOneX/wiki_frame){:target="_blank"} | [Flutter](https://github.com/CitizenOneX/wiki_frame/blob/main/lib/main.dart){:target="_blank"} | [Lua](https://github.com/CitizenOneX/wiki_frame/blob/main/assets/frame_app.lua){:target="_blank"} |
-| [Pollinations.AI Image Generation](https://github.com/CitizenOneX/frame_pollinations){:target="_blank"} | [Flutter](https://github.com/CitizenOneX/frame_pollinations/blob/main/lib/main.dart){:target="_blank"} | [Lua](https://github.com/CitizenOneX/frame_pollinations/blob/main/assets/frame_app.lua){:target="_blank"} |
-| [Audio Clip Recorder](https://github.com/CitizenOneX/frame_audio_clip){:target="_blank"} | [Flutter](https://github.com/CitizenOneX/frame_audio_clip/blob/main/lib/main.dart){:target="_blank"} | [Lua](https://github.com/CitizenOneX/frame_audio_clip/blob/main/assets/frame_app.lua){:target="_blank"} |
-| [Live Streaming Transcription](https://github.com/CitizenOneX/frame_transcribe_googlespeech){:target="_blank"} | [Flutter](https://github.com/CitizenOneX/frame_transcribe_googlespeech/blob/main/lib/main.dart){:target="_blank"} | [Lua](https://github.com/CitizenOneX/frame_transcribe_googlespeech/blob/main/assets/frame_app.lua){:target="_blank"} |
+| [Display a Sprite](https://github.com/CitizenOneX/frame_sprite_viewer) | [Flutter](https://github.com/CitizenOneX/frame_sprite_viewer/blob/main/lib/main.dart) | [Lua](https://github.com/CitizenOneX/frame_sprite_viewer/blob/main/assets/frame_app.lua) |
+| [Wikipedia Viewer](https://github.com/CitizenOneX/wiki_frame) | [Flutter](https://github.com/CitizenOneX/wiki_frame/blob/main/lib/main.dart) | [Lua](https://github.com/CitizenOneX/wiki_frame/blob/main/assets/frame_app.lua) |
+| [Pollinations.AI Image Generation](https://github.com/CitizenOneX/frame_pollinations) | [Flutter](https://github.com/CitizenOneX/frame_pollinations/blob/main/lib/main.dart) | [Lua](https://github.com/CitizenOneX/frame_pollinations/blob/main/assets/frame_app.lua) |
+| [Audio Clip Recorder](https://github.com/CitizenOneX/frame_audio_clip) | [Flutter](https://github.com/CitizenOneX/frame_audio_clip/blob/main/lib/main.dart) | [Lua](https://github.com/CitizenOneX/frame_audio_clip/blob/main/assets/frame_app.lua) |
+| [Live Streaming Transcription](https://github.com/CitizenOneX/frame_transcribe_googlespeech) | [Flutter](https://github.com/CitizenOneX/frame_transcribe_googlespeech/blob/main/lib/main.dart) | [Lua](https://github.com/CitizenOneX/frame_transcribe_googlespeech/blob/main/assets/frame_app.lua) |
 
 ### Frame Vision App
-| [![Available on pub.dev](https://img.shields.io/pub/v/simple_frame_app)](https://pub.dev/packages/simple_frame_app){:target="_blank"} | [API Reference](https://pub.dev/documentation/simple_frame_app/latest/){:target="_blank"} | [Source](https://github.com/CitizenOneX/simple_frame_app){:target="_blank"} |
+| [![Available on pub.dev](https://img.shields.io/pub/v/simple_frame_app)](https://pub.dev/packages/simple_frame_app) | [API Reference](https://pub.dev/documentation/simple_frame_app/latest/) | [Source](https://github.com/CitizenOneX/simple_frame_app) |
 
 Even more specialized quickstart scaffolding within the `simple_frame_app` package, designed for computer vision prototyping. In addition to handling connection and application resources on Frame, the Frame Vision App mixin conveniently provides images from the Frame camera directly to your code for custom processing.
 
 | Selected Examples | Flutter | Lua |
 |-------------------|---------|-----|
-| [Live Camera Feed](https://github.com/CitizenOneX/live_camera_feed){:target="_blank"} | [Flutter](https://github.com/CitizenOneX/live_camera_feed/blob/main/lib/main.dart){:target="_blank"} | [Lua](https://github.com/CitizenOneX/live_camera_feed/blob/main/assets/frame_app.lua){:target="_blank"} |
-| [Hotdog or not hotdog](https://github.com/CitizenOneX/frame_vision_hotdog){:target="_blank"} | [Flutter](https://github.com/CitizenOneX/frame_vision_hotdog/blob/main/lib/main.dart){:target="_blank"} | [Lua](https://github.com/CitizenOneX/frame_vision_hotdog/blob/main/assets/frame_app.lua){:target="_blank"} |
-| [Mobile Image Classification](https://github.com/CitizenOneX/frame_vision_classification){:target="_blank"} | [Flutter](https://github.com/CitizenOneX/frame_vision_classification/blob/main/lib/main.dart){:target="_blank"} | [Lua](https://github.com/CitizenOneX/frame_vision_classification/blob/main/assets/frame_app.lua){:target="_blank"} |
-| [Mobile Vision Translation](https://github.com/CitizenOneX/frame_vision_translation){:target="_blank"} | [Flutter](https://github.com/CitizenOneX/frame_vision_translation/blob/main/lib/main.dart){:target="_blank"} | [Lua](https://github.com/CitizenOneX/frame_vision_translation/blob/main/assets/frame_app.lua){:target="_blank"} |
+| [Live Camera Feed](https://github.com/CitizenOneX/live_camera_feed) | [Flutter](https://github.com/CitizenOneX/live_camera_feed/blob/main/lib/main.dart) | [Lua](https://github.com/CitizenOneX/live_camera_feed/blob/main/assets/frame_app.lua) |
+| [Hotdog or not hotdog](https://github.com/CitizenOneX/frame_vision_hotdog) | [Flutter](https://github.com/CitizenOneX/frame_vision_hotdog/blob/main/lib/main.dart) | [Lua](https://github.com/CitizenOneX/frame_vision_hotdog/blob/main/assets/frame_app.lua) |
+| [Mobile Image Classification](https://github.com/CitizenOneX/frame_vision_classification) | [Flutter](https://github.com/CitizenOneX/frame_vision_classification/blob/main/lib/main.dart) | [Lua](https://github.com/CitizenOneX/frame_vision_classification/blob/main/assets/frame_app.lua) |
+| [Mobile Vision Translation](https://github.com/CitizenOneX/frame_vision_translation) | [Flutter](https://github.com/CitizenOneX/frame_vision_translation/blob/main/lib/main.dart) | [Lua](https://github.com/CitizenOneX/frame_vision_translation/blob/main/assets/frame_app.lua) |
 
 ### “Mobile app with no mobile coding”
 
-| [Mobile App](https://github.com/CitizenOneX/frame_vision_api){:target="_blank"}  | [Sample API Backend](https://github.com/CitizenOneX/frame_vision_api_impl){:target="_blank"}
+| [Mobile App](https://github.com/CitizenOneX/frame_vision_api)  | [Sample API Backend](https://github.com/CitizenOneX/frame_vision_api_impl)
 
 Just want to code your computer vision backend in Python, but want a mobile app experience? Use this simple mobile app as-is (or customize) and point it to your own API endpoint for image processing, sending the result back to Frame for display.
 

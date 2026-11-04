@@ -1,15 +1,4 @@
----
-title: Flutter
-description: An overview of the Brilliant SDK for building Flutter mobile apps that talk to Brilliant Halo.
-image: /images/halo/halo-splash.png
-nav_order: 2
-parent: Brilliant SDK
-grand_parent: Halo
-nav_enabled: true
----
-
 # Brilliant SDK for Flutter
-{: .no_toc }
 
 ---
 
@@ -21,18 +10,16 @@ The Brilliant SDK for Flutter also supports **Frame** devices. `brilliant_ble` a
 
 ---
 
-1. TOC
-{:toc}
 
 ---
 
 ## `brilliant_ble` package: low-level connectivity
 
-| [![Available on pub.dev](https://img.shields.io/pub/v/brilliant_ble)](https://pub.dev/packages/brilliant_ble){:target="_blank"} | [API Reference](https://pub.dev/documentation/brilliant_ble/latest/){:target="_blank"} | [Source](https://github.com/brilliantlabsAR/brilliant_sdk/tree/main/flutter/packages/brilliant_ble){:target="_blank"} |
+| [![Available on pub.dev](https://img.shields.io/pub/v/brilliant_ble)](https://pub.dev/packages/brilliant_ble) | [API Reference](https://pub.dev/documentation/brilliant_ble/latest/) | [Source](https://github.com/brilliantlabsAR/brilliant_sdk/tree/main/flutter/packages/brilliant_ble) |
 
 The `BrilliantBluetooth` class connects to Halo (or Frame), initiating pairing if required. A sequence of Lua strings can be sent to the device for execution, optionally returning their results. Transmitted strings must be shorter than the Bluetooth MTU (`BrilliantDevice.maxStringLength()`).
 
-[Halo-specific Lua APIs](/halo/halo-sdk-lua) can be called to draw on the display, sample the IMU, set button and data callbacks, control the microphone and speaker, and more.
+[Halo-specific Lua APIs](https://docs.brilliant.xyz/halo/halo-sdk-lua/) can be called to draw on the display, sample the IMU, set button and data callbacks, control the microphone and speaker, and more.
 
 In addition to Lua strings, `BrilliantDevice` can send control commands (break, reset, remove) and custom user data messages handled by a callback on the device.
 
@@ -46,7 +33,6 @@ In addition to Lua strings, `BrilliantDevice` can send control commands (break, 
 - Android: fixed spurious reconnects after user-initiated disconnects
 
 ### Example usage
-{: .no_toc }
 
 ```dart
 import 'package:brilliant_ble/brilliant_ble.dart';
@@ -71,14 +57,13 @@ await device.sendString(
 
 ## `brilliant_msg` package: application-level messaging
 
-| [![Available on pub.dev](https://img.shields.io/pub/v/brilliant_msg)](https://pub.dev/packages/brilliant_msg){:target="_blank"} | [API Reference](https://pub.dev/documentation/brilliant_msg/latest/){:target="_blank"} | [Source](https://github.com/brilliantlabsAR/brilliant_sdk/tree/main/flutter/packages/brilliant_msg){:target="_blank"} |
+| [![Available on pub.dev](https://img.shields.io/pub/v/brilliant_msg)](https://pub.dev/packages/brilliant_msg) | [API Reference](https://pub.dev/documentation/brilliant_msg/latest/) | [Source](https://github.com/brilliantlabsAR/brilliant_sdk/tree/main/flutter/packages/brilliant_msg) |
 
 `brilliant_msg` enables the host and Haloside halves of an application to **communicate using richly typed messages** — for example transmitting sprites to Halo with width, height, palette data, and pixel data as a single object.
 
 `brilliant_msg` uses a programming model in which **a main event loop runs on Halo**. Messages are exchanged asynchronously and handled in an event-driven way, making it practical to build applications that simultaneously stream audio from Halo to the host *and* send display content back to Halo.
 
 ### How it works
-{: .no_toc }
 
 Large objects are serialized into multiple Bluetooth packets marked with a `msgCode`, and **efficiently reassembled on the device**. After parsing, the complete object is delivered to the Lua main loop.
 
@@ -94,7 +79,6 @@ Large objects are serialized into multiple Bluetooth packets marked with a `msgC
 - `TxSprite` wire format — `compressed` flag byte added at header offset 5
 
 ### Startup sequence
-{: .no_toc }
 
 `brilliant_msg` applications follow a standard sequence:
 
@@ -105,7 +89,6 @@ Large objects are serialized into multiple Bluetooth packets marked with a `msgC
 5. Exchange messages asynchronously
 
 ### Example usage
-{: .no_toc }
 
 `sprite_display.dart`
 ```dart
@@ -182,7 +165,7 @@ app_loop()
 
 ## `brilliant_sdk` meta-package
 
-| [![Available on pub.dev](https://img.shields.io/pub/v/brilliant_sdk)](https://pub.dev/packages/brilliant_sdk){:target="_blank"} | [Source](https://github.com/brilliantlabsAR/brilliant_sdk/tree/main/flutter/packages/brilliant_sdk){:target="_blank"} |
+| [![Available on pub.dev](https://img.shields.io/pub/v/brilliant_sdk)](https://pub.dev/packages/brilliant_sdk) | [Source](https://github.com/brilliantlabsAR/brilliant_sdk/tree/main/flutter/packages/brilliant_sdk) |
 
 The `brilliant_sdk` meta-package bundles `brilliant_ble` and `brilliant_msg` as a single dependency for apps that use both packages. Add it to your `pubspec.yaml`:
 
@@ -195,7 +178,7 @@ dependencies:
 
 ## `simple_brilliant_app` scaffolding
 
-| [![Available on pub.dev](https://img.shields.io/pub/v/simple_brilliant_app)](https://pub.dev/packages/simple_brilliant_app){:target="_blank"} | [Source](https://github.com/brilliantlabsAR/brilliant_sdk/tree/main/flutter/packages/simple_brilliant_app){:target="_blank"} |
+| [![Available on pub.dev](https://img.shields.io/pub/v/simple_brilliant_app)](https://pub.dev/packages/simple_brilliant_app) | [Source](https://github.com/brilliantlabsAR/brilliant_sdk/tree/main/flutter/packages/simple_brilliant_app) |
 
 `simple_brilliant_app` provides quickstart scaffolding for single-page Flutter applications that connect to Halo or Frame. It handles Bluetooth connection lifecycle, uploading Lua libraries and app files to the device, and provides mixins for common application patterns.
 
@@ -204,13 +187,12 @@ dependencies:
 - `FrameVisionAppState` mixin: uses `RxClick` for Halo button input and `RxTap` for Frame tap input
 
 ### Getting started with `simple_brilliant_app`
-{: .no_toc }
 
 ```bash
 flutter pub add simple_brilliant_app
 ```
 
-Follow the [flutter_blue_plus setup instructions](https://pub.dev/packages/flutter_blue_plus#getting-started){:target="_blank"} to configure your Android and iOS projects for Bluetooth LE.
+Follow the [flutter_blue_plus setup instructions](https://pub.dev/packages/flutter_blue_plus#getting-started) to configure your Android and iOS projects for Bluetooth LE.
 
 Copy the template files from the package into your project:
 - `template/main.dart` → `lib/main.dart`
@@ -231,7 +213,6 @@ flutter:
 ```
 
 ### `FrameVisionAppState` mixin — for camera and click/tap input
-{: .no_toc }
 
 The `FrameVisionAppState` mixin handles the differences between Halo and Frame input:
 

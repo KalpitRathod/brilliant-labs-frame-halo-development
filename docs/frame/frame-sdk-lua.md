@@ -1,38 +1,21 @@
----
-title: Lua API Reference
-description: A reference of Lua functionality available on your Frame AR glasses.
-image: /images/frame/frame-splash.png
-nav_order: 3
-parent: Frame SDK
-grand_parent: Frame
-redirect_from:
-  - /frame/lua
----
-
 # Lua API
-{: .no_toc }
 
 ---
 
 Lua is a tiny and extensible scripting language that's designed to be power efficient and quick to learn. Frame features a complete Lua virtual machine based on the latest public release of Lua. Dedicated hardware APIs allow direct access to all of Frame's peripherals at a high level so that developers can start building apps quickly and easily.
 
-{: .note }
 Note that the Lua virtual machine on the Frame has a subset of the standard library, so some guides on the internet about Lua may contain code that won't work on Frame without modification.  Specifically, Lua's standard `io` and `os` libraries are not present on Frame.
 
-There's no special cables or setup needed. Lua on Frame is accessed solely over Bluetooth, such that any user created host app can easily execute scripts by simply pushing Lua strings to the device. To learn more how the underlying Bluetooth communication with Frame works, check out the [Talking to the Frame over Bluetooth](/frame/frame-sdk-bluetooth-specs) page.
+There's no special cables or setup needed. Lua on Frame is accessed solely over Bluetooth, such that any user created host app can easily execute scripts by simply pushing Lua strings to the device. To learn more how the underlying Bluetooth communication with Frame works, check out the [Talking to the Frame over Bluetooth](https://docs.brilliant.xyz/frame/frame-sdk-bluetooth-specs/) page.
 
 ---
 
 ## Library reference
-{: .no_toc }
 
 This page describes all of the Frame specific Lua APIs available to the developer along with some helpful examples. Certain libraries allow for more low level access that can be used for debugging and hacking the various subsystems of Frame.
 
-{: .note }
 The API specification is still undergoing heavy development. Some of them may change over time.
 
-1. TOC
-{:toc}
 
 ---
 
@@ -42,7 +25,6 @@ The display engine allows drawing of text, sprites and vectors. These elements c
 
 The Frame display is capable of rendering up to 16 colors at one time. These colors are preset by default, however each color can be overridden.
 
-{: .note }
 The vector command is not yet implemented.
 
 | API&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| Description |
@@ -53,12 +35,10 @@ The vector command is not yet implemented.
 | `frame.display.show()`                                                  | Shows the drawn objects on the display.  See [below](#buffering) for more details on how buffering works.
 
 #### Buffering
-{: .no_toc }
 
 The Frame display has 2 buffers. All writing to the display via `frame.display.text()`, `frame.display.bitmap()`, etc write to an off-screen buffer and are not visible. This allows you to write multiple actions at once. When you have completed drawing and want to show it to the user, call `frame.display.show()` which will display the buffered graphics and clear a new off-screen buffer for whatever you want to draw next.
 
 #### Displaying Text
-{: .no_toc }
 
 `frame.display.text(string, x, y, {color='WHITE', spacing=4})` prints the given `string` to the display with its upper-left at position `x, y`. All positions are 1-indexed, so possible values for `x` are between 1 and 640, and possible values for `y` are between 1 and 400. Text is variable width, not fixed-width. Currently it is not possible to modify the font or font size. There is no word-wrapping performed automatically.
 
@@ -74,7 +54,6 @@ frame.display.show()
 ```
 
 #### Sprite Engine
-{: .no_toc }
 
 `frame.display.bitmap(x, y, width, color_format, palette_offset, data)` allows manually drawing to the screen. The bitmap is positioned with its upper-left at `x, y` with width `width` and the height automatically determined by the length of the data.  `color_format` can be one of 2, 4, or 16. By including less colors in your bitmap, you can fit more pixels into a smaller data string. `palette_offset` is a number between 0 and 15, where 0 means no offset.
 
@@ -88,7 +67,7 @@ To achieve different color drawings, the `palette_offset` feature is used. This 
 
 The example below shows how a single sprite can be shown in different colors using the `palette_offset` feature. Note how the color palette [has been adjusted](#low-level-display-commands) to repeat the same colors after index 5, but with red changed to green.
 
-![Frame display sprite engine example](/frame/images/frame-sprite-engine.drawio.png)
+![Frame display sprite engine example](images/frame-sprite-engine.drawio.png)
 </details>
 
 The `data` is a lua string which is just an array of bytes, but with multiple pixels packed in each byte based on the number of colors. When drawing, the `palette_offset` is added to palette index (wrapping around at 16).
@@ -131,13 +110,12 @@ frame.display.bitmap(100, 50, 32, 2, 3, string.rep("\xFF", 32 / 8 * 16))
 ```
 
 #### Color Palette
-{: .no_toc }
 
 The Frame display is capable of rendering up to 16 colors at a time. Each color is indexed 0-15, and are named in the following order: `VOID`, `WHITE` ,`GREY` ,`RED` ,`PINK` ,`DARKBROWN` ,`BROWN` ,`ORANGE` ,`YELLOW` ,`DARKGREEN` ,`GREEN` ,`LIGHTGREEN` ,`NIGHTBLUE` ,`SEABLUE` ,`SKYBLUE` or `CLOUDBLUE`. `VOID` represents the background (normally black) color. Each color can be overridden per frame to any 10bit YCbCr color from the colorspace shown below. This space contains a total of 1024 possible colors.
 
 <details markdown="block">
 <summary>Frame display YCbCr colorspace</summary>
-![Frame display YCbCr colorspace](/frame/images/frame-ycbcr-colorspace.png)
+![Frame display YCbCr colorspace](images/frame-ycbcr-colorspace.png)
 </details>
 
 The `assign_color()` function simplifies color selection by allowing the user to enter regular 24bit RGB values which are internally converted to the YCbCr colorspace. Note however that the color actually rendered will be rounded to one of the above colors.
@@ -167,7 +145,6 @@ Here's the default palette, as names and indices:
 </tbody></table>
 
 #### Low-Level Display Commands
-{: .no_toc }
 
 | Low&nbsp;level&nbsp;functions&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| Description |
 |:---------|:------------|
@@ -193,7 +170,6 @@ The camera capability of Frame allows for capturing and downloading single JPEG 
 | `frame.camera.auto{metering='CENTER_WEIGHTED', exposure=0.1, exposure_speed=0.45, shutter_limit=16383, analog_gain_limit=16, white_balance_speed=0.5, rgb_gain_limit=287}` | Runs the automatic exposure, gain and white balance algorithm. This function must be called every 100ms for the best performance. `metering` can be one of three modes, `SPOT`, `CENTER_WEIGHTED`, or `AVERAGE`. `exposure` can be a value between `0.0` and `1.0` where lower values will return darker images, and higher values will return brighter images. `exposure_speed` and `white_balance_speed` control how aggressively the algorithm will attempt to correct for the exposure and white balance respectively. Higher values will result in a faster convergence, but may create additional overshoot or oscillation of the image brightness or color balance. `shutter_limit` and `analog_gain_limit` will cap the maximum shutter and gain values. Reducing these values may be used to reduce motion blur and image noise respectively. Shutter is always prioritized over gain. When going into darker scenes, the shutter will first increase, and once it has reached the `shutter_limit`, the gain will then begin to increase. Likewise, when going into brighter scenes, the gain will decrease to zero first, and only then will the shutter decrease. `rgb_gain_limit` constrains `red_gain`, `green_gain` and `blue_gain` to be capped at a value less than the maximum (1023) to reduce the amplification of noise. This function returns a table of statistics related to the scene and current algorithm state. Many aspects of shutter, gain and white balance may be monitored by reading the table.
 
 #### Example
-{: .no_toc }
 
 ```lua
 local mtu = frame.bluetooth.max_length()
@@ -222,7 +198,6 @@ end
 ```
 
 #### Low-Level Camera Commands
-{: .no_toc }
 
 | Low&nbsp;level&nbsp;functions&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| Description |
 |:---------|:------------|
@@ -246,7 +221,6 @@ The microphone on Frame allows for streaming audio to a host device in real-time
 | `frame.microphone.read(num_bytes)`                      | Reads out a number of bytes from the buffer. If all bytes have been read, but streaming is still active, an empty string will be returned. Once the stream has been stopped and all bytes have been read, then `nil` will be returned
 
 #### Example
-{: .no_toc }
 
 ```lua
 local mtu = frame.bluetooth.max_length()
@@ -293,7 +267,6 @@ The tap gesture will always wake up Frame from `frame.sleep()`.
 | `frame.imu.raw()` | Returns a table of the raw `accelerometer` and `compass` measurements. Each containing a table with `x`, `y`, and `z` values
 
 #### Example
-{: .no_toc }
 
 ```lua
 print(frame.imu.direction()['pitch']) -- Prints the angle of the wearer's head (up or down)
@@ -309,7 +282,7 @@ frame.imu.tap_callback(tapped)
 
 ### Bluetooth
 
-The Bluetooth API allows for sending and receiving raw byte data over Bluetooth. For a full description of how this can be used, check out the [Talking to the Frame over Bluetooth](/frame/frame-sdk-bluetooth-specs) page.
+The Bluetooth API allows for sending and receiving raw byte data over Bluetooth. For a full description of how this can be used, check out the [Talking to the Frame over Bluetooth](https://docs.brilliant.xyz/frame/frame-sdk-bluetooth-specs/) page.
 
 | API | Description |
 |:---------|:------------|
@@ -319,7 +292,6 @@ The Bluetooth API allows for sending and receiving raw byte data over Bluetooth.
 | `frame.bluetooth.send(data)`                | Sends data to the host device. `data` must be a string, but can contain byte values including 0x00 values anywhere in the string. The total length of the string must be less than or equal to `frame.bluetooth.max_length()`
 
 #### Example
-{: .no_toc }
 
 ```lua
 function get_data(data) -- Called every time byte data arrives to Frame
@@ -349,19 +321,16 @@ The file system API allows for writing and reading files to Frame's non-volatile
 | `f:close()`                         | Closes the file. It is important to close files once done writing, otherwise they may become corrupted
 
 #### Tips
-{: .no_toc }
 
 * On many online Lua guides, the examples allow `'r'`, `'w'`, or `'a'` as shorthand for `'read'`, `'write'`, or `'append'`, however Frame does not support that.  You need to spell out the whole word.
 * GitHub Copilot and ChatGPT will always generate incorrect code like `file.read()` rather than the correct `f:read()`.  Keep a close eye on the syntax.
 * `f:read()` reads until the end of the line, so you need to call it multiple times to get through the whole file.  It will return `nil` when it has reached the end of the file.
 * There is no function to check if a file exists.  Instead you can try to open the file for reading and see if it fails.
 
-{: .warning }
 There is [an open bug](https://github.com/brilliantlabsAR/frame-codebase/issues/234) where `f:read(*num_bytes)` will not always respect the num_bytes limit.  Until that is resolved, your code should handle receiving up to 512 bytes at a time.
 
 
 #### Example
-{: .no_toc }
 
 ```lua
 frame.file.mkdir('/my_files') -- Make a new directory
@@ -413,7 +382,6 @@ The compression library allows for working with LZ4 compressed data. Currently, 
 | `frame.compression.process_function(function)`   | Assigns a callback to handle the decompressed data. `function` must be a function, or can be `nil` to deactivate the callback. The function will receive the decompressed data with a length of `block_size` and will be called several times until all the data has been decompressed
 
 #### Example
-{: .no_toc }
 
 ```lua
 -- Decompression function
@@ -509,7 +477,6 @@ The time functions allow for accurate timekeeping on Frame. The `utc()` function
 | `frame.time.date(*timestamp)` | Returns a table containing `second`, `minute`, `hour`, `day`, `month`, `year`, `weekday`, `day of year`, and `is daylight saving`. If the optional `timestamp` argument is given, that timestamp will be used to calculate the corresponding date.
 
 #### Example
-{: .no_toc }
 
 ```lua
 frame.time.utc(1708551112) -- Set the current time to Wed Feb 21 2024 21:31:52 UTC
@@ -537,7 +504,7 @@ The system API provides miscellaneous functions such as `sleep` and `update`. It
 | `frame.GIT_TAG`          | Returns the current firmware git tag as a 7 character string. E.g. `'4a6ea0b'`
 | `frame.battery_level()`  | Returns the battery level as a percentage between `1` and `100`
 | `frame.sleep(*seconds)`  | Sleeps for a given number of seconds. `seconds` can be a decimal number such as `1.25`. If no argument is given, Frame will go to sleep until a tap gesture wakes it up
-| `frame.update()`         | Reboots Frame into the firmware bootloader. Check the [firmware updates](/frame/frame-sdk#firmware-updates) section of the Building Apps page to see how this is used
+| `frame.update()`         | Reboots Frame into the firmware bootloader. Check the [firmware updates](https://docs.brilliant.xyz/frame/frame-sdk/#firmware-updates) section of the Building Apps page to see how this is used
 
 | Low&nbsp;level&nbsp;functions&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| Description |
 |:---------|:------------|
@@ -548,13 +515,12 @@ The system API provides miscellaneous functions such as `sleep` and `update`. It
 ---
 
 ## AR Studio
-{: .no_toc }
 
 While the main way you'll use Lua on Frame is via host apps that send it over Bluetooth, it can be helpful while learning to directly write and execute Lua code on Frame using the AR Studio extension for VSCode.
 
 AR studio is an extension for VSCode designed for both Frame and Monocle. It lets you quickly start writing apps and testing them on your device. Download it [here](https://marketplace.visualstudio.com/items?itemName=brilliantlabs.brilliant-ar-studio), or simply search for Brilliant AR Studio from within the VSCode extensions tab.
 
-![Brilliant AR Studio for VSCode](/frame/images/frame-vs-code-extension.png)
+![Brilliant AR Studio for VSCode](images/frame-vs-code-extension.png)
 
 Once you have AR Studio installed, you can try an example using the following steps:
 
