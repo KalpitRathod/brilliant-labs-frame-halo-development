@@ -2,6 +2,9 @@
 
 This repository contains the complete hardware CAD models, schematics, firmware codebases, official SDKs, and an end-to-end **Simple Inventory Management & Alert System** for **Brilliant Labs Frame** and **Brilliant Labs Halo** AR glasses.
 
+> 📘 **Master Architecture & Integration Guide:**  
+> For an in-depth walkthrough combining hardware fabrication, firmware internals, the on-device Lua HUD script, and the end-to-end developer workflow, see [HARDWARE_FIRMWARE_PROJECT_GUIDE.md](HARDWARE_FIRMWARE_PROJECT_GUIDE.md).
+
 ---
 
 ## Web Simulator & Glasses HUD Preview
@@ -174,6 +177,7 @@ Monocle is Brilliant Labs' open-source single-eye AR display with fully open har
 ## Workspace Structure
 
 ```
+├── HARDWARE_FIRMWARE_PROJECT_GUIDE.md# Master Architecture, Firmware & Project Integration Playbook
 ├── hardware/                         # Mechanical 3D CAD (.stl / .step) & Electrical Schematics (.pdf)
 │   ├── halo/halo.stl
 │   ├── frame/
