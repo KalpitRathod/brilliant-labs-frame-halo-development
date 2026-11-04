@@ -17,33 +17,33 @@ This guide connects all three project pillars:
 ```mermaid
 flowchart TD
     subgraph HardwareLayer["1. Physical Hardware Layer"]
-        Optics["Micro-OLED / OLEDoS Optical Engine\n(Frame: 640x400 Sony | Halo: 256x256 Round Guozhao)"]
-        MCU["Silicon Core\n(Halo: Alif Balletto B1 Arm M55+NPU\nFrame: nRF52840 + Lattice FPGA)"]
-        Sensors["Peripherals & Audio\n(640x480 Camera, IMU Tap, Bone-Conduction Speaker, Buttons)"]
-        Power["Power & Mechanics\n(300mAh Li-Po, Mister Power Cradle, 3D CAD Frame)"]
+        Optics["Micro-OLED and OLEDoS Optical Engine<br/>Frame: 640x400 Sony / Halo: 256x256 Round"]
+        MCU["Silicon Core<br/>Halo: Alif Balletto B1 Arm M55+NPU<br/>Frame: nRF52840 + Lattice FPGA"]
+        Sensors["Peripherals and Audio<br/>VGA Camera, IMU Tap, Bone-Conduction Speaker, Buttons"]
+        Power["Power and Mechanics<br/>300mAh Li-Po, Mister Power Cradle, 3D CAD Frame"]
     end
 
     subgraph FirmwareLayer["2. Embedded Firmware Layer"]
-        OS["RTOS Kernel\n(Halo: Zephyr OS | Frame: Nordic Bare-Metal/FreeRTOS)"]
-        FPGARTL["FPGA RTL Accelerator\n(Lattice CrossLink-NX Graphics & Camera ISP Pipeline)"]
-        LuaVM["Embedded Lua 5.4 Virtual Machine\n(frame.display, frame.camera, frame.sound, frame.imu, frame.button)"]
-        BLEStack["BLE Protocol Stack & OTA\n(Nordic DFU / Alif MCUboot SMP Service)"]
+        OS["RTOS Kernel<br/>Halo: Zephyr OS / Frame: Nordic C"]
+        FPGARTL["FPGA RTL Accelerator<br/>Lattice CrossLink-NX Graphics and Camera ISP Pipeline"]
+        LuaVM["Embedded Lua 5.4 Virtual Machine<br/>frame.display, frame.camera, frame.sound, frame.imu, frame.button"]
+        BLEStack["BLE Protocol Stack and OTA<br/>Nordic DFU / Alif MCUboot SMP Service"]
     end
 
-    subgraph ProjectLayer["3. Application & Host Project Layer"]
-        Bridge["Glasses Bridge (glasses_bridge.py)\n- BLE Mode (brilliant_ble / frame_ble)\n- Emulator Mode (halo_emulator / local)"]
-        Backend["Host Application (FastAPI main.py)\n- REST API & WebSockets\n- Inventory Alert Engine (db.py)\n- QR/Barcode Scanner Engine (scanner_service.py)"]
-        HUD["On-Device HUD App (inventory_hud.lua)\n- Dynamic State Rendering\n- Audio Tone Generation\n- Physical Tap / Button Event Handling"]
-        WebDash["Operator Dashboard & Web Simulator\n(HTML5, Bootstrap 5 Dark, Live HUD Mirroring)"]
+    subgraph ProjectLayer["3. Application and Host Project Layer"]
+        Bridge["Glasses Bridge (glasses_bridge.py)<br/>BLE Mode / Emulator Mode"]
+        Backend["Host Application (FastAPI main.py)<br/>REST API, Alert Engine, QR Scanner"]
+        HUD["On-Device HUD App (inventory_hud.lua)<br/>Dynamic State Rendering, Audio Tones, Tap Events"]
+        WebDash["Operator Dashboard and Web Simulator<br/>HTML5, Bootstrap 5 Dark, Live HUD Mirroring"]
     end
 
     HardwareLayer <--> FirmwareLayer
-    FirmwareLayer <-->|Bluetooth Low Energy (GATT RX/TX)| Bridge
+    FirmwareLayer <-->|"BLE GATT RX/TX Channel"| Bridge
     Bridge <--> Backend
     Backend <--> WebDash
-    Bridge -.->|Pushes Lua Script & States| LuaVM
-    LuaVM -.->|Controls Pixels & Audio| Optics
-    Sensors -.->|Tap / Button Events| LuaVM
+    Bridge -.->|"Sends Lua Scripts and States"| LuaVM
+    LuaVM -.->|"Controls Display and Audio"| Optics
+    Sensors -.->|"Tap and Button Events"| LuaVM
 ```
 
 ---
@@ -220,30 +220,30 @@ sequenceDiagram
     participant Server as FastAPI Server & DB
     participant Dash as Web Dashboard
 
-    Note over Operator,Dash: Phase 1: System Boot & Initialization
-    Server->>Bridge: Initialize Bridge (mode='emulator' or 'ble')
-    Bridge->>Glasses: Upload inventory_hud.lua over BLE/Socket
-    Glasses-->>Bridge: Confirm "HUD_READY"
+    Note over Operator,Dash: Phase 1: System Boot and Initialization
+    Server->>Bridge: Initialize Bridge (mode=emulator or ble)
+    Bridge->>Glasses: Upload inventory_hud.lua over BLE or Socket
+    Glasses-->>Bridge: Confirm HUD_READY
     Bridge->>Dash: Stream initial STANDBY HUD preview
 
-    Note over Operator,Dash: Phase 2: Scanning & Stock Lookup
-    Operator->>Server: Scan Barcode / QR (or simulate via API)
+    Note over Operator,Dash: Phase 2: Scanning and Stock Lookup
+    Operator->>Server: Scan Barcode or QR (or simulate via API)
     Server->>Server: Query SKU in SQLite DB
     Server->>Bridge: bridge.display_item(item_data)
-    Bridge->>Glasses: Run Lua: display_item({sku, name, qty, loc})
-    Glasses->>Glasses: Render Item Details HUD + Play Chime
+    Bridge->>Glasses: Run Lua: display_item(item_data)
+    Glasses->>Glasses: Render Item Details HUD and Play Chime
     Glasses-->>Bridge: Mirrored HUD Preview updated
 
-    Note over Operator,Dash: Phase 3: Alert Detection & Notification
-    Server->>Server: Detect Stock <= Threshold (e.g. qty=0)
+    Note over Operator,Dash: Phase 3: Alert Detection and Notification
+    Server->>Server: Detect Stock below Threshold (qty=0)
     Server->>Bridge: bridge.display_alert(alert_data)
     Bridge->>Glasses: Run Lua: render_alert(CRITICAL)
-    Glasses->>Glasses: Red Banner + Audio Alert Tones
+    Glasses->>Glasses: Red Banner and Audio Alert Tones
     Glasses-->>Dash: Push Red Alert to Dashboard
 
     Note over Operator,Dash: Phase 4: Physical Acknowledgment
-    Operator->>Glasses: Single Tap Glasses Temple (or Button)
-    Glasses-->>Bridge: Event: "HUD_EVENT:TAP"
+    Operator->>Glasses: Single Tap Glasses Temple or Button
+    Glasses-->>Bridge: Event: HUD_EVENT_TAP
     Bridge->>Server: POST /api/alerts/{id}/ack
     Server->>Server: Mark Alert Acknowledged in DB
     Server->>Bridge: bridge.reset_standby()
@@ -353,3 +353,4 @@ When your physical Brilliant Labs glasses arrive:
 - **Firmware Sources**: [`firmware/`](firmware/)
 - **Documentation**: [`docs/`](docs/)
 - **GitHub Repository**: [https://github.com/KalpitRathod/brilliant-labs-frame-halo-development](https://github.com/KalpitRathod/brilliant-labs-frame-halo-development)
+
